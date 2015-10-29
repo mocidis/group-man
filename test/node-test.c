@@ -77,15 +77,16 @@ int main(int argc, char * argv[]) {
     gr.on_sq_report_f = &on_sq_report;
     gb_receiver_init(&gr, gb_cs);
     
+    pthread_create(&thread, NULL, auto_register, &node) ;  
+
+
+    ///////////////////////////////////////////////////////////
     // GM_INFO
     gm_request_t req_info;
     req_info.msg_id = GM_INFO;
     ansi_copy_str(req_info.gm_info.info_id, argv[1]);
     ansi_copy_str(req_info.gm_info.sdp_mip, "111.111.111.111");
     req_info.gm_info.sdp_port = 1111;
-
-    pthread_create(&thread, NULL, auto_register, &node) ;  
-
     while (1) {
         if (fgets(option, sizeof(option), stdin) == NULL ) {
             SHOW_LOG(5, fprintf(stdout,"NULL cmd"));
