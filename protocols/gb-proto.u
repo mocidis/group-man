@@ -1,0 +1,20 @@
+BEGIN gb
+REQUEST o_rept 401 {
+    PARAM o_id char [10]
+    PARAM is_online int
+}
+
+REQUEST t_rept 402 {
+    PARAM t_id char [10]
+    PARAM is_tx int
+}
+
+REQUEST r_rept 403 {
+    PARAM r_id char [10]
+    PARAM is_rx int
+}
+REQUEST q_rept 404 {
+    PARAM q_id char [10]
+    PARAM is_sq int
+}
+END

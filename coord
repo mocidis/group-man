@@ -1,0 +1,2 @@
+#!/bin/bash
+./coordinator udp:192.168.2.50:1994

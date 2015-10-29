@@ -1,0 +1,33 @@
+BEGIN gm
+REQUEST gm_reg 101 {
+    PARAM reg_id char [10]
+    PARAM gmc_cs char [30]
+
+    PARAM location char [30]
+    PARAM desc char [50]
+
+#    PARAM is_online int
+#    PARAM is_tx int
+#    PARAM is_sq int
+
+    PARAM radio_port int
+
+    PARAM frequency double
+    PARAM volume double
+}
+
+REQUEST gm_group 102 {
+    # owner = id host
+    # guest = id guest will join/leave owner's multicast ip
+    PARAM owner char [10]
+    PARAM guest char [10]
+    PARAM join int
+}
+
+REQUEST gm_info 103 {
+    PARAM info_id char [10]
+    # TO BE FIXED !!!!!!!!
+    PARAM sdp_mip char [16]
+    PARAM sdp_port int
+}
+END

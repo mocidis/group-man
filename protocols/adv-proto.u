@@ -1,0 +1,8 @@
+BEGIN adv
+REQUEST adv_info 301 {
+    PARAM info_id char [10]
+    # TO BE FIXED !!!!!!!!
+    PARAM sdp_mip char [16]
+    PARAM sdp_port int
+}
+END
