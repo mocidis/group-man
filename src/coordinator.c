@@ -80,7 +80,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
     SHOW_LOG(5, fprintf(stdout, "Receive something\n"));
     switch(request->msg_id) {
         case GM_REG:
-            SHOW_LOG(5, fprintf(stdout, "Receive request:\nFrom: %s\nAddr: %s\n", 
+            SHOW_LOG(4, fprintf(stdout, "Receive request:\nFrom: %s\nAddr: %s\n", 
                         request->gm_reg.reg_id, request->gm_reg.gmc_cs));
             // Add entry in the request to coordinator.registered_nodes
             temp = find_entry_by_id(request->gm_reg.reg_id);
@@ -116,7 +116,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 temp->recv_time = timer;
 
                 DL_APPEND(coordinator.registered_nodes, temp);
-                SHOW_LOG(5, fprintf(stdout,"Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str));
+                SHOW_LOG(4, fprintf(stdout,"Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str));
             }
 
             break;
@@ -204,7 +204,7 @@ int main(int argc, char * argv[]) {
     char gb_cs[30];
     int n;
 
-    SET_LOG_LEVEL(5);
+    SET_LOG_LEVEL(4);
     coordinator.adv_mip_cnt = ADV_MIP_LAST_OCTET_BEGIN;
 
     SHOW_LOG(5, fprintf(stdout, "Init object pool\n"));

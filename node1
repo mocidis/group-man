@@ -1,2 +1,0 @@
-#!/bin/bash
-./node NODE1 hanoi "Barrett radio" 1 udp:192.168.2.50:1994 udp:192.168.2.50:1993 NODE2

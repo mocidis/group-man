@@ -10,12 +10,19 @@ void node_register(node_t *node) {
         SHOW_LOG(5, fprintf(stdout, "Registration is failed: Node is not online\n"));
         return;
     }
+    int n;
     gm_request_t req;
     
     //Set request value
     req.msg_id = GM_REG;
     memset(req.gm_reg.reg_id, 0, sizeof(req.gm_reg.reg_id));
-    strncpy(req.gm_reg.reg_id, node->id, strlen(node->id));
+    if (node->radio_port < 0) {
+        strncpy(req.gm_reg.reg_id, node->id, strlen(node->id));
+    }
+    else {
+        n = sprintf(req.gm_reg.reg_id, "%s%d", node->id, node->radio_port);
+        req.gm_reg.reg_id[n] = '\0';
+    }
     memset(req.gm_reg.gmc_cs, 0, sizeof(req.gm_reg.gmc_cs));
     strncpy(req.gm_reg.gmc_cs, node->gmc_cs, strlen(node->gmc_cs));
     memset(req.gm_reg.location, 0, sizeof(req.gm_reg.location));
