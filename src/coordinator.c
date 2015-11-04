@@ -85,7 +85,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             // Add entry in the request to coordinator.registered_nodes
             temp = find_entry_by_id(request->gm_reg.reg_id);
 
-            gb_sender_report_online(&coordinator.gb_sender, request->gm_reg.reg_id, 1);
+            //gb_sender_report_online(&coordinator.gb_sender, request->gm_reg.reg_id, 1);
 
             time(&timer);
 
@@ -149,7 +149,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 SHOW_LOG(4, fprintf(stdout, "Guest: %s\n", temp2->id));
             }
 
-            SHOW_LOG(4, fprintf(stdout, "Tell %s join into ip %s\n", temp2->id, gmc_req.gmc_group.adv_ip));
+            SHOW_LOG(4, fprintf(stdout, "Tell %s join into ip %s || gmc_cs = %s \n", temp2->id, gmc_req.gmc_group.adv_ip, temp2->gmc_client.connect_str));
             gmc_client_send(&temp2->gmc_client, &gmc_req);
             break;
         case GM_INFO:
@@ -187,7 +187,7 @@ void *coordinator_proc(void *coord) {
                 
                 is_online = (timer - temp->recv_time < 15)?1:0;
 
-                gb_sender_report_online(&coordinator->gb_sender, temp->id, is_online);
+                gb_sender_report_online(&coordinator->gb_sender, temp->id, temp->desc, temp->radio_port, is_online);
             }
         }
         SHOW_LOG(5, fprintf(stdout, "Coordinator_proc: Sending...\n"));

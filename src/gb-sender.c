@@ -17,10 +17,12 @@ void gb_sender_create(gb_sender_t *gs, char *gb_cs2) {
     gb_client_open(gs, gb_cs2);
 #endif
 }
-void gb_sender_report_online(gb_sender_t *gs, char *id, int is_online) {
+void gb_sender_report_online(gb_sender_t *gs, char *id, char *desc, int radio_port, int is_online) {
     gb_request_t req;
     req.msg_id = O_REPT;
     ansi_copy_str(req.o_rept.o_id, id);
+    ansi_copy_str(req.o_rept.desc, desc);
+    req.o_rept.radio_port = radio_port;
     req.o_rept.is_online = is_online;
     PERROR_IF_TRUE(gb_client_send(gs, &req) < 0, "ERROR::gb_sender_report_online:");
 }

@@ -5,7 +5,7 @@
 
 typedef struct {
     gb_server_t gb_server;
-    void (* on_online_report_f)(char *id, int is_online);
+    void (* on_online_report_f)(char *id, char *desc, int radio_port, int is_online);
     void (* on_tx_report_f)(char *id, int is_tx);
     void (* on_rx_report_f)(char *id, int is_rx);
     void (* on_sq_report_f)(char *id, int is_sq);
