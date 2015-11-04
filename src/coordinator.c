@@ -47,7 +47,7 @@ static int id_cmp(entry_t *n1, entry_t *n2) {
     return strncmp(n1->id, n2->id, sizeof(n2->id));
 }
 
-static int is_riu(entry_t *entry) { // Utility function
+int is_riu(entry_t *entry) { // Utility function
     return entry->radio_port >= 0;
 }
 

@@ -5,7 +5,7 @@
 #include "adv-server.h"
 #include "proto-constants.h"
 
-typedef struct node_s{
+typedef struct node_s {
     gm_client_t gm_client;
     gmc_server_t gmc_server;
     adv_server_t adv_server;    
@@ -18,7 +18,7 @@ typedef struct node_s{
     int radio_port;
 
     void (*on_adv_info_f)(adv_server_t *adv_server, adv_request_t *request);
-}node_t ;
+} node_t ;
 
 void node_init(node_t *node,
                char *id, 
