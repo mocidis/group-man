@@ -130,7 +130,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             //find owner's entry for adv_cs
             temp = find_entry_by_id(request->gm_group.owner);
             if (temp == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error ID not found!\n"));
+                SHOW_LOG(4, fprintf(stdout,"Error Owner ID not found for %s!\n", request->gm_group.owner));
                 break;
             }
             else {
@@ -142,7 +142,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             //find guest's entry
             temp2 = find_entry_by_id(request->gm_group.guest);
             if (temp2 == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error ID not found!\n"));
+                SHOW_LOG(4, fprintf(stdout,"Error Guest ID not found for %s!\n", request->gm_group.guest));
                 break;
             }
             else {
