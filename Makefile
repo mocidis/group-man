@@ -35,7 +35,7 @@ CFLAGS:=-I$(GEN_DIR) -I$(C_DIR)/include -Wall
 CFLAGS+=-I$(JSONC_DIR)/include/json-c 
 CFLAGS+=-I$(LIBUT_DIR)/include 
 CFLAGS+=-I$(O_DIR)/include 
-CFLAGS+=-Iinclude
+CFLAGS+=-Iinclude -D__ICS_INTEL__
 
 LIBS:=$(JSONC_DIR)/lib/libjson-c.a -lpthread
 

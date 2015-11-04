@@ -133,7 +133,6 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 SHOW_LOG(4, fprintf(stdout,"Error ID not found!\n"));
                 break;
             }
-
             extract_ip(temp->adv_client.connect_str, gmc_req.gmc_group.adv_ip);
 
             //find guest's entry

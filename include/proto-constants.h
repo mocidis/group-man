@@ -3,5 +3,6 @@
 #define ADV_PORT 2015
 #define GB_PORT 5012
 #define GB_MIP "238.0.0.1"
+#define GB_CS "udp:238.0.0.1:5012"
 #define TIME_OUT 15
 #endif
