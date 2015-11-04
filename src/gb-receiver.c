@@ -17,7 +17,7 @@ static void on_request(gb_server_t *gb_server, gb_request_t *req) {
 
     switch(req->msg_id) {
         case O_REPT:
-            gr->on_online_report_f(req->o_rept.o_id, req->o_rept.is_online);   
+            gr->on_online_report_f(req->o_rept.o_id, req->o_rept.desc, req->o_rept.radio_port, req->o_rept.is_online);   
             break;
         case T_REPT:
             gr->on_tx_report_f(req->t_rept.t_id, req->t_rept.is_tx);

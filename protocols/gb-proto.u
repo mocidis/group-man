@@ -1,6 +1,8 @@
 BEGIN gb
 REQUEST o_rept 401 {
     PARAM o_id char [10]
+    PARAM desc char [50]
+    PARAM radio_port int
     PARAM is_online int
 }
 

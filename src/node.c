@@ -43,7 +43,7 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request) {
                 adv_server_join(&node->adv_server, request->gmc_group.adv_ip);
             }
             else if (request->gmc_group.join == 0) {
-                SHOW_LOG(4, fprintf(stdout, "Leave %s\n", request->gmc_group.adv_ip));
+                SHOW_LOG(4, fprintf(stdout, "%s leave %s\n", node->id, request->gmc_group.adv_ip));
                 adv_server_leave(&node->adv_server, request->gmc_group.adv_ip);
             }
             else {
