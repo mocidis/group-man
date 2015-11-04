@@ -61,7 +61,7 @@ static entry_t *find_entry_by_id(char *id) {
 
 static void entry_update(entry_t *temp, entry_t *entry) {
     //entry_t *temp;
-    SHOW_LOG(5, fprintf(stdout, "Node %s is updated\n", entry->id));
+    SHOW_LOG(4, fprintf(stdout, "Node %s is updated\n", entry->id));
     DL_REPLACE_ELEM(coordinator.registered_nodes, temp, entry);
 }
 
@@ -80,7 +80,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
     SHOW_LOG(5, fprintf(stdout, "Receive something\n"));
     switch(request->msg_id) {
         case GM_REG:
-            SHOW_LOG(5, fprintf(stdout, "Receive request:\nFrom: %s\nAddr: %s\n", 
+            SHOW_LOG(4, fprintf(stdout, "Receive request: From: %s Addr: %s\n", 
                         request->gm_reg.reg_id, request->gm_reg.gmc_cs));
             // Add entry in the request to coordinator.registered_nodes
             temp = find_entry_by_id(request->gm_reg.reg_id);
@@ -116,7 +116,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 temp->recv_time = timer;
 
                 DL_APPEND(coordinator.registered_nodes, temp);
-                SHOW_LOG(5, fprintf(stdout,"Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str));
+                SHOW_LOG(4, fprintf(stdout,"Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str));
             }
 
             break;
@@ -133,6 +133,10 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 SHOW_LOG(4, fprintf(stdout,"Error ID not found!\n"));
                 break;
             }
+            else {
+                SHOW_LOG(4, fprintf(stdout, "Onwer: %s\n", temp->id));
+            }
+
             extract_ip(temp->adv_client.connect_str, gmc_req.gmc_group.adv_ip);
 
             //find guest's entry
@@ -141,6 +145,10 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 SHOW_LOG(4, fprintf(stdout,"Error ID not found!\n"));
                 break;
             }
+            else {
+                SHOW_LOG(4, fprintf(stdout, "Guest: %s\n", temp2->id));
+            }
+
             SHOW_LOG(4, fprintf(stdout, "Tell %s join into ip %s\n", temp2->id, gmc_req.gmc_group.adv_ip));
             gmc_client_send(&temp2->gmc_client, &gmc_req);
             break;
@@ -203,7 +211,7 @@ int main(int argc, char * argv[]) {
     char gb_cs[30];
     int n;
 
-    SET_LOG_LEVEL(5);
+    SET_LOG_LEVEL(4);
     coordinator.adv_mip_cnt = ADV_MIP_LAST_OCTET_BEGIN;
 
     SHOW_LOG(5, fprintf(stdout, "Init object pool\n"));

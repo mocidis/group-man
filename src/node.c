@@ -14,14 +14,11 @@ void node_register(node_t *node) {
     
     //Set request value
     req.msg_id = GM_REG;
-    memset(req.gm_reg.reg_id, 0, sizeof(req.gm_reg.reg_id));
-    strncpy(req.gm_reg.reg_id, node->id, strlen(node->id));
-    memset(req.gm_reg.gmc_cs, 0, sizeof(req.gm_reg.gmc_cs));
-    strncpy(req.gm_reg.gmc_cs, node->gmc_cs, strlen(node->gmc_cs));
-    memset(req.gm_reg.location, 0, sizeof(req.gm_reg.location));
-    strncpy(req.gm_reg.location, node->location, strlen(node->location));
-    memset(req.gm_reg.desc, 0, sizeof(req.gm_reg.desc));
-    strncpy(req.gm_reg.desc, node->desc, strlen(node->desc));
+
+    ansi_copy_str(req.gm_reg.reg_id, node->id);
+    ansi_copy_str(req.gm_reg.gmc_cs, node->gmc_cs);
+    ansi_copy_str(req.gm_reg.location, node->location);
+    ansi_copy_str(req.gm_reg.desc, node->desc);
 
     req.gm_reg.radio_port = node->radio_port;    
 
@@ -42,7 +39,7 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request) {
             SHOW_LOG(4, fprintf(stdout, "Received request:\nAction: %d - Adv_ip: %s\n", 
                     request->gmc_group.join, request->gmc_group.adv_ip));
             if (request->gmc_group.join == 1) {
-                SHOW_LOG(4, fprintf(stdout, "Join %s\n", request->gmc_group.adv_ip));
+                SHOW_LOG(4, fprintf(stdout, "%s join %s\n", node->id, request->gmc_group.adv_ip));
                 adv_server_join(&node->adv_server, request->gmc_group.adv_ip);
             }
             else if (request->gmc_group.join == 0) {
@@ -58,26 +55,28 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request) {
     }
 }
 
-void node_init(node_t *node,char *id, char *location, char *desc, int radio_port, char *gm_cs, char *gmc_cs, char *adv_cs) {
-    memset(node->id, 0, sizeof(node->id));
-    strncpy(node->id, id, strlen(id));
-    memset(node->gmc_cs, 0, sizeof(node->gmc_cs));
-    strncpy(node->gmc_cs, gmc_cs, strlen(gmc_cs));
-    memset(node->location, 0, sizeof(node->location));
-    strncpy(node->location, location, strlen(location));
-    memset(node->desc, 0, sizeof(node->desc));
-    strncpy(node->desc, desc, strlen(desc));
+void node_init(node_t *node,char *id, char *location, char *desc, int radio_port, char *gm_cs, char *gmc_cs, char *adv_cs) {    
+    int n;
+
+    if (radio_port < 0) {
+        ansi_copy_str(node->id, id);
+    }
+    else {
+        n = sprintf(node->id, "%s%d", id, radio_port);
+        node->id[n] = '\0';
+    }
+    ansi_copy_str(node->location, location);
+    ansi_copy_str(node->desc, desc);
+    ansi_copy_str(node->gmc_cs, gmc_cs);
 
     node->radio_port = radio_port;
-
     gm_client_open(&node->gm_client, gm_cs);
-
     memset(&node->gmc_server, 0, sizeof(node->gmc_server));
     memset(&node->adv_server, 0, sizeof(node->adv_server));
 
     node->gmc_server.on_request_f = &on_request_gmc_server;
     node->gmc_server.user_data = node;
-    
+   
     node->adv_server.on_request_f = node->on_adv_info_f;
     node->adv_server.user_data = node;
 

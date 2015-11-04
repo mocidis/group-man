@@ -1,2 +1,0 @@
-#!/bin/bash
-./node NODE2 hcm "Motorola radio" 0 udp:192.168.2.30:1994 udp:192.168.2.30:3991 NODE1

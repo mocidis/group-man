@@ -33,10 +33,15 @@ static void on_request(gb_server_t *gb_server, gb_request_t *req) {
     }
 }
 
+void on_open_socket(gb_server_t *gb_server) {
+    gb_server_join(gb_server, GB_MIP);
+}
+
 void gb_receiver_init(gb_receiver_t *gr, char *gb_cs) {
     memset(&gr->gb_server, 0, sizeof(gr->gb_server));    
 
     gr->gb_server.on_request_f = &on_request;
+    gr->gb_server.on_open_socket_f = &on_open_socket;
     gr->gb_server.user_data = gr;
 
     gb_server_init(&gr->gb_server, gb_cs);

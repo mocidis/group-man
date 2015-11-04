@@ -3,7 +3,17 @@
 #include "ansi-utils.h"
 #include "gb-receiver.h"
 #include "proto-constants.h"
+//#include "ics.h"
+/*
+typedef struct s t;
+struct oiuc_s {
+    node_t node;
+    gb_receiver_t gr;
+   // ics_t ics;
+}
 
+t 
+*/
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request) {
     SHOW_LOG(4, fprintf(stdout,"Received: ID = %s\nSDP addr %s:%d\n", request->adv_info.info_id, request->adv_info.sdp_mip, request->adv_info.sdp_port));
 }
@@ -37,7 +47,6 @@ void usage(char *app) {
 int main(int argc, char * argv[]) {
     node_t node;
     gb_receiver_t gr;
-
     if (argc < 8)
         usage(argv[0]);
 
@@ -87,6 +96,9 @@ int main(int argc, char * argv[]) {
     ansi_copy_str(req_info.gm_info.info_id, argv[1]);
     ansi_copy_str(req_info.gm_info.sdp_mip, "111.111.111.111");
     req_info.gm_info.sdp_port = 1111;
+
+    //sleep(1);
+    gb_server_join(&gr.gb_server, GB_MIP);
     while (1) {
         if (fgets(option, sizeof(option), stdin) == NULL ) {
             SHOW_LOG(5, fprintf(stdout,"NULL cmd"));
