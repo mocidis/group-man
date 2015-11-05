@@ -141,6 +141,13 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
 
             //find guest's entry
             temp2 = find_entry_by_id(request->gm_group.guest);
+			setbuf(stdout, NULL);
+			fprintf(stdout, "------------0: %s\n", coordinator.registered_nodes[0].id);
+			fprintf(stdout, "------------1: %s\n", coordinator.registered_nodes[1].id);
+			fprintf(stdout, "------------2: %s\n", coordinator.registered_nodes[2].id);
+            DL_FOREACH_SAFE(coordinator.registered_nodes, temp, entry) {
+				fprintf(stdout, "+++++++++: %s\n", temp->id);
+			}
             if (temp2 == NULL) {
                 SHOW_LOG(4, fprintf(stdout,"Error ID not found!\n"));
                 break;
