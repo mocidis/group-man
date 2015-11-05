@@ -47,7 +47,7 @@ static int id_cmp(entry_t *n1, entry_t *n2) {
     return strncmp(n1->id, n2->id, sizeof(n2->id));
 }
 
-static int is_riu(entry_t *entry) { // Utility function
+int is_riu(entry_t *entry) { // Utility function
     return entry->radio_port >= 0;
 }
 
@@ -126,11 +126,13 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
 
             gmc_req.msg_id = GMC_GROUP;
             gmc_req.gmc_group.join = request->gm_group.join;
-
+            DL_FOREACH_SAFE(coordinator.registered_nodes, temp, entry) {
+                SHOW_LOG(4, fprintf(stdout, "ID = %s\n", temp->id));
+            }
             //find owner's entry for adv_cs
             temp = find_entry_by_id(request->gm_group.owner);
             if (temp == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error ID not found!\n"));
+                SHOW_LOG(4, fprintf(stdout,"Error Owner ID not found for %s!\n", request->gm_group.owner));
                 break;
             }
             else {
@@ -149,7 +151,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
 				fprintf(stdout, "+++++++++: %s\n", temp->id);
 			}
             if (temp2 == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error ID not found!\n"));
+                SHOW_LOG(4, fprintf(stdout,"Error Guest ID not found for %s!\n", request->gm_group.guest));
                 break;
             }
             else {
