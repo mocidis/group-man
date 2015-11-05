@@ -147,7 +147,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 SHOW_LOG(4, fprintf(stdout, "Guest: %s\n", temp2->id));
             }
 
-            SHOW_LOG(4, fprintf(stdout, "Tell %s join into ip %s || gmc_cs = %s \n", temp2->id, gmc_req.gmc_group.adv_ip, temp2->gmc_client.connect_str));
+            SHOW_LOG(4, fprintf(stdout, "Tell %s join/leave into ip %s || gmc_cs = %s \n", temp2->id, gmc_req.gmc_group.adv_ip, temp2->gmc_client.connect_str));
             gmc_client_send(&temp2->gmc_client, &gmc_req);
             break;
         case GM_INFO:
