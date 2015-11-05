@@ -165,7 +165,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             ansi_copy_str(req.adv_info.sdp_mip, request->gm_info.sdp_mip);
             req.adv_info.sdp_port = request->gm_info.sdp_port;
        
-            SHOW_LOG(4, fprintf(stdout, "Send ADV info to %s at %s\n", temp->id, temp->adv_client.connect_str));     
+            SHOW_LOG(4, fprintf(stdout, "Send ADV info from %s to addr %s\n", temp->id, temp->adv_client.connect_str));     
             adv_client_send(&temp->adv_client, &req);
             break;
         default:

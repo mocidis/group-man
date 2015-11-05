@@ -82,7 +82,6 @@ void node_init(node_t *node,char *id, char *location, char *desc, int radio_port
 
     gmc_server_init(&node->gmc_server, gmc_cs);
     adv_server_init(&node->adv_server, adv_cs);
-
     gmc_server_start(&node->gmc_server);
     adv_server_start(&node->adv_server);
 }
