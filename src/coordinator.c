@@ -53,8 +53,8 @@ int is_riu(entry_t *entry) { // Utility function
 
 static entry_t *find_entry_by_id(char *id) {
     entry_t *to_return;
-    entry_t temp;
-    strncpy(temp.id, id, strlen(id));
+	entry_t temp;
+	strncpy(temp.id, id, strlen(id)+1);
     DL_SEARCH(coordinator.registered_nodes, to_return, &temp, id_cmp);
     return to_return;
 }
@@ -84,8 +84,6 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                         request->gm_reg.reg_id, request->gm_reg.gmc_cs));
             // Add entry in the request to coordinator.registered_nodes
             temp = find_entry_by_id(request->gm_reg.reg_id);
-
-            //gb_sender_report_online(&coordinator.gb_sender, request->gm_reg.reg_id, 1);
 
             time(&timer);
 
@@ -126,9 +124,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
 
             gmc_req.msg_id = GMC_GROUP;
             gmc_req.gmc_group.join = request->gm_group.join;
-            DL_FOREACH_SAFE(coordinator.registered_nodes, temp, entry) {
-                SHOW_LOG(4, fprintf(stdout, "ID = %s\n", temp->id));
-            }
+
             //find owner's entry for adv_cs
             temp = find_entry_by_id(request->gm_group.owner);
             if (temp == NULL) {
@@ -143,13 +139,6 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
 
             //find guest's entry
             temp2 = find_entry_by_id(request->gm_group.guest);
-			setbuf(stdout, NULL);
-			fprintf(stdout, "------------0: %s\n", coordinator.registered_nodes[0].id);
-			fprintf(stdout, "------------1: %s\n", coordinator.registered_nodes[1].id);
-			fprintf(stdout, "------------2: %s\n", coordinator.registered_nodes[2].id);
-            DL_FOREACH_SAFE(coordinator.registered_nodes, temp, entry) {
-				fprintf(stdout, "+++++++++: %s\n", temp->id);
-			}
             if (temp2 == NULL) {
                 SHOW_LOG(4, fprintf(stdout,"Error Guest ID not found for %s!\n", request->gm_group.guest));
                 break;
