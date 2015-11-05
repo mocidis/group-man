@@ -126,7 +126,9 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
 
             gmc_req.msg_id = GMC_GROUP;
             gmc_req.gmc_group.join = request->gm_group.join;
-
+            DL_FOREACH_SAFE(coordinator.registered_nodes, temp, entry) {
+                SHOW_LOG(4, fprintf(stdout, "ID = %s\n", temp->id));
+            }
             //find owner's entry for adv_cs
             temp = find_entry_by_id(request->gm_group.owner);
             if (temp == NULL) {
