@@ -33,6 +33,12 @@ GEN_SRCS:=gm-server.c gm-client.c gmc-server.c gmc-client.c adv-server.c adv-cli
 
 JSONC_DIR:=../json-c/output
 
+CFLAGS:=-I$(GEN_DIR) -I$(C_DIR)/include -Wall
+CFLAGS+=-I$(JSONC_DIR)/include/json-c 
+CFLAGS+=-I$(LIBUT_DIR)/include 
+CFLAGS+=-I$(O_DIR)/include 
+CFLAGS+=-Iinclude -D__ICS_INTEL__
+CFLAGS+=-I$(ANSI_O_DIR)/include 
 CFLAGS:=-g -I$(GEN_DIR) -I$(C_DIR)/include -Wall
 CFLAGS+=-I$(JSONC_DIR)/include/json-c
 CFLAGS+=-I$(LIBUT_DIR)/include

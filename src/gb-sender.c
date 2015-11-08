@@ -31,7 +31,7 @@ void gb_sender_report_tx(gb_sender_t *gs, char *id, int port, int is_tx){
     int n;
     gb_request_t req;
     req.msg_id = T_REPT;
-    n = sprintf(req.t_rept.t_id, "%s%d", id, port);
+    n = sprintf(req.t_rept.t_id, "%s", id);
     req.t_rept.t_id[n] = '\0';
     req.t_rept.is_tx = is_tx;
     PERROR_IF_TRUE(gb_client_send(gs, &req) < 0, "ERROR::gb_sender_report_tx:");
@@ -41,7 +41,7 @@ void gb_sender_report_rx(gb_sender_t *gs, char *id, int port, int is_rx){
     int n;
     gb_request_t req;
     req.msg_id = R_REPT;
-    n = sprintf(req.r_rept.r_id, "%s%d", id, port);
+    n = sprintf(req.r_rept.r_id, "%s", id);
     req.r_rept.r_id[n] = '\0';
     req.r_rept.is_rx = is_rx;
     PERROR_IF_TRUE(gb_client_send(gs, &req) < 0, "ERROR::gb_sender_report_rx:");
@@ -52,7 +52,7 @@ void gb_sender_report_sq(gb_sender_t *gs, char *id, int port, int is_sq){
     gb_request_t req;
 
     req.msg_id = Q_REPT;
-    n = sprintf(req.q_rept.q_id, "%s%d", id, port);
+    n = sprintf(req.q_rept.q_id, "%s", id);
     req.q_rept.q_id[n] = '\0';
     //ansi_copy_str(req.q_rept.q_id, id);
     req.q_rept.is_sq = is_sq;
