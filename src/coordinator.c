@@ -147,24 +147,15 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             gmc_client_send(&temp2->gmc_client, &gmc_req);
             break;
         case GM_INFO:
-            SHOW_LOG(4, fprintf(stdout, "%s receive request from %s ID=%d\n", request->gm_info.gm_owner, request->gm_info.gm_guest, request->msg_id));
+            SHOW_LOG(3, fprintf(stdout, "Receive GM_INFO from %s\n", request->gm_info.gm_owner));
 
             temp = find_entry_by_id(request->gm_info.gm_owner);
             if (temp == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error Owner ID not found for %s!\n", request->gm_group.owner));
+                SHOW_LOG(3, fprintf(stdout,"Error Owner ID not found for %s!\n", request->gm_group.owner));
                 break;
             }
             else {
-                SHOW_LOG(4, fprintf(stdout, "Onwer: %s\n", temp->id));
-            }
-
-            temp2 = find_entry_by_id(request->gm_group.guest);
-            if (temp2 == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error Guest ID not found for %s!\n", request->gm_group.guest));
-                break;
-            }
-            else {
-                SHOW_LOG(4, fprintf(stdout, "Guest: %s\n", temp2->id));
+                SHOW_LOG(3, fprintf(stdout, "Onwer: %s\n", temp->id));
             }
 
             adv_request_t req;
@@ -174,11 +165,11 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             ansi_copy_str(req.adv_info.sdp_mip, request->gm_info.sdp_mip);
             req.adv_info.sdp_port = request->gm_info.sdp_port;
        
-            SHOW_LOG(4, fprintf(stdout, "Send ADV info from %s to %s Addr %s\n", temp->id, temp2->id, temp2->adv_client.connect_str));     
+            SHOW_LOG(3, fprintf(stdout, "Send ADV_INFO to %s\n", temp->adv_client.connect_str));     
             adv_client_send(&temp->adv_client, &req);
             break;
         default:
-            EXIT_IF_TRUE(1,"Unknow msg\n");
+            EXIT_IF_TRUE(1,"Unknown msg\n");
     }
 }
 

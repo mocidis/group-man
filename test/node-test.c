@@ -95,7 +95,7 @@ int main(int argc, char * argv[]) {
     pjmedia_codec_g711_init(ep);
 
     streamer_init(&streamer, ep, pool);
-    receiver_init(&receiver, ep, pool);
+    receiver_init(&receiver, ep, pool, 2);
     
     first = streamer_spec;
     second = strchr(streamer_spec, ':');

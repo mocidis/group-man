@@ -7,7 +7,7 @@
 
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request) {
     node_t *node = adv_server->user_data;
-    SHOW_LOG(4, fprintf(stdout,"Received: ID = %s\nSDP addr %s:%d\n", request->adv_info.info_id, request->adv_info.sdp_mip, request->adv_info.sdp_port));
+    SHOW_LOG(3, fprintf(stdout, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port));
     if(!node_has_media(node)) {
         SHOW_LOG(1, fprintf(stdout, "Node does not have media endpoints configured\n"));
         return;
@@ -20,6 +20,12 @@ void on_adv_info(adv_server_t *adv_server, adv_request_t *request) {
     else {
         receiver_stop(node->receiver);
     }
+}
+
+void on_open_socket_adv_server(adv_server_t *adv_server) {
+    static pj_thread_desc s_desc;
+    static pj_thread_t *s_thread;
+    ANSI_CHECK(__FILE__, pj_thread_register("adv_server", s_desc, &s_thread));
 }
 
 void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request) {
@@ -73,6 +79,7 @@ void node_init(node_t *node,char *id, char *location, char *desc, int radio_port
    
     //node->adv_server.on_request_f = node->on_adv_info_f;
     node->adv_server.on_request_f = on_adv_info; // !!! Callback on session info received
+    node->adv_server.on_open_socket_f = on_open_socket_adv_server;
     node->adv_server.user_data = node;
 
     gmc_server_init(&node->gmc_server, gmc_cs);
@@ -150,7 +157,7 @@ void node_start_session(node_t *node) {
    
     // Broadcast session info
     request.msg_id = GM_INFO;
-    ansi_copy_str(request.gm_info.info_id, node->id);
+    ansi_copy_str(request.gm_info.gm_owner, node->id);
     ansi_copy_str(request.gm_info.sdp_mip, mcast);
     request.gm_info.sdp_port = port;
     gm_client_send(&node->gm_client, &request);
@@ -166,7 +173,7 @@ void node_stop_session(node_t *node) {
 
     // Broadcast session info
     request.msg_id = GM_INFO;
-    ansi_copy_str(request.gm_info.info_id, node->id);
+    ansi_copy_str(request.gm_info.gm_owner, node->id);
     request.gm_info.sdp_port = -1;
     gm_client_send(&node->gm_client, &request);
 
