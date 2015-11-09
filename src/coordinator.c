@@ -61,7 +61,7 @@ static entry_t *find_entry_by_id(char *id) {
 
 static void entry_update(entry_t *temp, entry_t *entry) {
     //entry_t *temp;
-    SHOW_LOG(4, fprintf(stdout, "Node %s is updated\n", entry->id));
+    SHOW_LOG(3, fprintf(stdout, "Node %s is updated\n", entry->id));
     DL_REPLACE_ELEM(coordinator.registered_nodes, temp, entry);
 }
 
@@ -114,7 +114,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 temp->recv_time = timer;
 
                 DL_APPEND(coordinator.registered_nodes, temp);
-                SHOW_LOG(4, fprintf(stdout,"Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str));
+                SHOW_LOG(3, fprintf(stdout,"Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str));
             }
 
             break;
@@ -147,11 +147,11 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 SHOW_LOG(4, fprintf(stdout, "Guest: %s\n", temp2->id));
             }
 
-            SHOW_LOG(4, fprintf(stdout, "Tell %s join/leave into ip %s || gmc_cs = %s \n", temp2->id, gmc_req.gmc_group.adv_ip, temp2->gmc_client.connect_str));
+            SHOW_LOG(3, fprintf(stdout, "Tell %s join/leave into ip %s || gmc_cs = %s \n", temp2->id, gmc_req.gmc_group.adv_ip, temp2->gmc_client.connect_str));
             gmc_client_send(&temp2->gmc_client, &gmc_req);
             break;
         case GM_INFO:
-            SHOW_LOG(4, fprintf(stdout, "%s receive request from %s ID=%d\n", request->gm_info.gm_owner, request->gm_info.gm_guest, request->msg_id));
+            SHOW_LOG(4, fprintf(stdout, "Receive request from %s ID=%d\n", request->gm_info.gm_owner, request->msg_id));
 
             temp = find_entry_by_id(request->gm_info.gm_owner);
             if (temp == NULL) {
@@ -162,23 +162,13 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 SHOW_LOG(4, fprintf(stdout, "Onwer: %s\n", temp->id));
             }
 
-            temp2 = find_entry_by_id(request->gm_group.guest);
-            if (temp2 == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error Guest ID not found for %s!\n", request->gm_group.guest));
-                break;
-            }
-            else {
-                SHOW_LOG(4, fprintf(stdout, "Guest: %s\n", temp2->id));
-            }
-
             adv_request_t req;
             req.msg_id = ADV_INFO;
             ansi_copy_str(req.adv_info.adv_owner, request->gm_info.gm_owner);
-            ansi_copy_str(req.adv_info.adv_guest, request->gm_info.gm_guest);
             ansi_copy_str(req.adv_info.sdp_mip, request->gm_info.sdp_mip);
             req.adv_info.sdp_port = request->gm_info.sdp_port;
        
-            SHOW_LOG(4, fprintf(stdout, "Send ADV info from %s to %s Addr %s\n", temp->id, temp2->id, temp2->adv_client.connect_str));     
+            SHOW_LOG(3, fprintf(stdout, "Send ADV info from %s to mutilcast addr: %s\n", temp->id, temp->adv_client.connect_str));     
             adv_client_send(&temp->adv_client, &req);
             break;
         default:

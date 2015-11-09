@@ -40,11 +40,11 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request) {
                     request->gmc_group.join, request->gmc_group.adv_ip));
             if (request->gmc_group.join == 1) {
                 SHOW_LOG(4, fprintf(stdout, "%s join %s\n", node->id, request->gmc_group.adv_ip));
-                adv_server_join(&node->adv_server, request->gmc_group.adv_ip);
+                adv_server_join(node->adv_server, request->gmc_group.adv_ip);
             }
             else if (request->gmc_group.join == 0) {
                 SHOW_LOG(4, fprintf(stdout, "%s leave %s\n", node->id, request->gmc_group.adv_ip));
-                adv_server_leave(&node->adv_server, request->gmc_group.adv_ip);
+                adv_server_leave(node->adv_server, request->gmc_group.adv_ip);
             }
             else {
                 EXIT_IF_TRUE(1, "Unknow action\n");
@@ -71,19 +71,15 @@ void node_init(node_t *node,char *id, char *location, char *desc, int radio_port
 
     node->radio_port = radio_port;
     gm_client_open(&node->gm_client, gm_cs);
+
     memset(&node->gmc_server, 0, sizeof(node->gmc_server));
-    memset(&node->adv_server, 0, sizeof(node->adv_server));
+    //memset(&node->adv_server, 0, sizeof(node->adv_server));
 
     node->gmc_server.on_request_f = &on_request_gmc_server;
     node->gmc_server.user_data = node;
-   
-    node->adv_server.on_request_f = node->on_adv_info_f;
-    node->adv_server.user_data = node;
-
+    
     gmc_server_init(&node->gmc_server, gmc_cs);
-    adv_server_init(&node->adv_server, adv_cs);
     gmc_server_start(&node->gmc_server);
-    adv_server_start(&node->adv_server);
 }
 
 int node_is_online(node_t *node) {
@@ -113,10 +109,14 @@ void node_repulse(node_t *node, char *guest) {
 
 void node_pause(node_t *node) {
     node->gmc_server.is_online = 0;
-    node->adv_server.is_online = 0;
+    node->adv_server->is_online = 0;
 }
 
 void node_resume(node_t *node) {
     node->gmc_server.is_online = 1;
-    node->adv_server.is_online = 1;
+    node->adv_server->is_online = 1;
+}
+
+void node_add_adv_server(node_t *node, adv_server_t *adv_server) {
+    node->adv_server = adv_server;
 }

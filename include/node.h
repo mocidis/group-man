@@ -8,7 +8,7 @@
 typedef struct node_s {
     gm_client_t gm_client;
     gmc_server_t gmc_server;
-    adv_server_t adv_server;    
+    adv_server_t *adv_server;    
     
     char id[10];
     char gmc_cs[30];
@@ -38,4 +38,5 @@ int node_is_online(node_t *node);
 void node_invite(node_t *node, char *guest);
 void node_repulse(node_t *node, char *guest);
 
+void node_add_adv_server(node_t *node, adv_server_t *adv_server);
 #endif
