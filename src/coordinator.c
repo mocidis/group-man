@@ -80,7 +80,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
     SHOW_LOG(5, fprintf(stdout, "Receive something\n"));
     switch(request->msg_id) {
         case GM_REG:
-            SHOW_LOG(4, fprintf(stdout, "Receive request: From: %s Addr: %s\n", 
+            SHOW_LOG(5, fprintf(stdout, "Receive request: From: %s Addr: %s\n", 
                         request->gm_reg.reg_id, request->gm_reg.gmc_cs));
             // Add entry in the request to coordinator.registered_nodes
             temp = find_entry_by_id(request->gm_reg.reg_id);
@@ -90,7 +90,8 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             if( temp != NULL ) {
                 entry = temp;
                 entry->recv_time = timer;
-                entry_update(temp, entry);
+                SHOW_LOG(4, fprintf(stdout, "------- %p -- %p ---\n", temp, entry));
+                //entry_update(temp, entry);
             }
             else {
                 item = opool_get(&coordinator.opool);
@@ -119,7 +120,8 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
 
             break;
         case GM_GROUP:
-            SHOW_LOG(4, fprintf(stdout, "Receive request: ID=%d\n", request->msg_id));
+            SHOW_LOG(3, fprintf(stdout, "%s %s %s\n", request->gm_group.owner,\
+                                request->gm_group.join?"invite":"repulse", request->gm_group.guest));
             gmc_request_t gmc_req;
 
             gmc_req.msg_id = GMC_GROUP;
@@ -128,11 +130,8 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             //find owner's entry for adv_cs
             temp = find_entry_by_id(request->gm_group.owner);
             if (temp == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error Owner ID not found for %s!\n", request->gm_group.owner));
+                SHOW_LOG(2, fprintf(stdout,"Error ID not found!\n"));
                 break;
-            }
-            else {
-                SHOW_LOG(4, fprintf(stdout, "Onwer: %s\n", temp->id));
             }
 
             extract_ip(temp->adv_client.connect_str, gmc_req.gmc_group.adv_ip);
@@ -140,13 +139,11 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             //find guest's entry
             temp2 = find_entry_by_id(request->gm_group.guest);
             if (temp2 == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error Guest ID not found for %s!\n", request->gm_group.guest));
+                SHOW_LOG(2, fprintf(stdout,"Error ID not found!\n"));
                 break;
             }
-            else {
-                SHOW_LOG(4, fprintf(stdout, "Guest: %s\n", temp2->id));
-            }
 
+<<<<<<< HEAD
             SHOW_LOG(3, fprintf(stdout, "Tell %s join/leave into ip %s || gmc_cs = %s \n", temp2->id, gmc_req.gmc_group.adv_ip, temp2->gmc_client.connect_str));
             gmc_client_send(&temp2->gmc_client, &gmc_req);
             break;
@@ -160,6 +157,21 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             }
             else {
                 SHOW_LOG(4, fprintf(stdout, "Onwer: %s\n", temp->id));
+=======
+            SHOW_LOG(3, fprintf(stdout, "Tell %s(%s) join into ip %s\n", temp2->id, temp2->gmc_client.connect_str, gmc_req.gmc_group.adv_ip));
+            gmc_client_send(&temp2->gmc_client, &gmc_req);
+            break;
+        case GM_INFO:
+            SHOW_LOG(3, fprintf(stdout, "Receive GM_INFO from %s\n", request->gm_info.gm_owner));
+
+            temp = find_entry_by_id(request->gm_info.gm_owner);
+            if (temp == NULL) {
+                SHOW_LOG(3, fprintf(stdout,"Error Owner ID not found for %s!\n", request->gm_group.owner));
+                break;
+            }
+            else {
+                SHOW_LOG(3, fprintf(stdout, "Onwer: %s\n", temp->id));
+>>>>>>> df0d5a62c8bdb037663b361692c03e0d02963e51
             }
 
             adv_request_t req;
@@ -168,11 +180,15 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             ansi_copy_str(req.adv_info.sdp_mip, request->gm_info.sdp_mip);
             req.adv_info.sdp_port = request->gm_info.sdp_port;
        
+<<<<<<< HEAD
             SHOW_LOG(3, fprintf(stdout, "Send ADV info from %s to mutilcast addr: %s\n", temp->id, temp->adv_client.connect_str));     
+=======
+            SHOW_LOG(3, fprintf(stdout, "Send ADV_INFO to %s\n", temp->adv_client.connect_str));     
+>>>>>>> df0d5a62c8bdb037663b361692c03e0d02963e51
             adv_client_send(&temp->adv_client, &req);
             break;
         default:
-            EXIT_IF_TRUE(1,"Unknow msg\n");
+            EXIT_IF_TRUE(1,"Unknown msg\n");
     }
 }
 
@@ -187,7 +203,7 @@ void *coordinator_proc(void *coord) {
                 time(&timer);
                 
                 is_online = (timer - temp->recv_time < 15)?1:0;
-
+                SHOW_LOG(3, fprintf(stdout, "%s is %s\n", temp->id, is_online?"online":"offline"));
                 gb_sender_report_online(&coordinator->gb_sender, temp->id, temp->desc, temp->radio_port, is_online);
             }
         }
@@ -212,7 +228,7 @@ int main(int argc, char * argv[]) {
     char gb_cs[30];
     int n;
 
-    SET_LOG_LEVEL(4);
+    SET_LOG_LEVEL(3);
     coordinator.adv_mip_cnt = ADV_MIP_LAST_OCTET_BEGIN;
 
     SHOW_LOG(5, fprintf(stdout, "Init object pool\n"));

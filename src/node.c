@@ -5,6 +5,105 @@
 
 #include "node.h"
 
+void on_adv_info(adv_server_t *adv_server, adv_request_t *request) {
+    node_t *node = adv_server->user_data;
+    SHOW_LOG(3, fprintf(stdout, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port));
+    if(!node_has_media(node)) {
+        SHOW_LOG(1, fprintf(stdout, "Node does not have media endpoints configured\n"));
+        return;
+    }
+    if( request->adv_info.sdp_port > 0 ) {
+        receiver_stop(node->receiver);
+        receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port);
+        receiver_start(node->receiver);
+    }
+    else {
+        receiver_stop(node->receiver);
+    }
+}
+
+void on_open_socket_adv_server(adv_server_t *adv_server) {
+    static pj_thread_desc s_desc;
+    static pj_thread_t *s_thread;
+    ANSI_CHECK(__FILE__, pj_thread_register("adv_server", s_desc, &s_thread));
+}
+
+void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request) {
+    node_t *node = gmc_server->user_data;
+    SHOW_LOG(5, fprintf(stdout, "Receive something\n"));
+    switch(request->msg_id) {
+        case GMC_GROUP:
+            SHOW_LOG(4, fprintf(stdout, "Received request:\nAction: %d - Adv_ip: %s\n", 
+                    request->gmc_group.join, request->gmc_group.adv_ip));
+            if (request->gmc_group.join == 1) {
+                SHOW_LOG(4, fprintf(stdout, "%s join %s\n", node->id, request->gmc_group.adv_ip));
+                adv_server_join(node->adv_server, request->gmc_group.adv_ip);
+            }
+            else if (request->gmc_group.join == 0) {
+                SHOW_LOG(4, fprintf(stdout, "%s leave %s\n", node->id, request->gmc_group.adv_ip));
+                adv_server_leave(node->adv_server, request->gmc_group.adv_ip);
+            }
+            else {
+                EXIT_IF_TRUE(1, "Unknown action\n");
+            }
+            break;
+        default:
+            EXIT_IF_TRUE(1, "Unknown request\n");
+    }
+}
+
+void node_init(node_t *node,char *id, char *location, char *desc, int radio_port, char *gm_cs, char *gmc_cs, char *adv_cs) {    
+    int n;
+
+    if (radio_port < 0) {
+        ansi_copy_str(node->id, id);
+    }
+    else {
+        n = sprintf(node->id, "%s%d", id, radio_port);
+        node->id[n] = '\0';
+    }
+    ansi_copy_str(node->location, location);
+    ansi_copy_str(node->desc, desc);
+    ansi_copy_str(node->gmc_cs, gmc_cs);
+
+    node->radio_port = radio_port;
+
+    node->streamer = node->receiver = NULL;
+
+    gm_client_open(&node->gm_client, gm_cs);
+
+    memset(&node->gmc_server, 0, sizeof(node->gmc_server));
+    //memset(&node->adv_server, 0, sizeof(node->adv_server));
+
+    node->gmc_server.on_request_f = &on_request_gmc_server;
+    node->gmc_server.user_data = node;
+<<<<<<< HEAD
+    
+=======
+   
+    //node->adv_server.on_request_f = node->on_adv_info_f;
+    node->adv_server.on_request_f = on_adv_info; // !!! Callback on session info received
+    node->adv_server.on_open_socket_f = on_open_socket_adv_server;
+    node->adv_server.user_data = node;
+
+>>>>>>> df0d5a62c8bdb037663b361692c03e0d02963e51
+    gmc_server_init(&node->gmc_server, gmc_cs);
+    gmc_server_start(&node->gmc_server);
+}
+
+void node_media_config(node_t *node, endpoint_t *streamer, endpoint_t *receiver) {
+    node->streamer = streamer;
+    node->receiver = receiver;
+}
+
+int node_is_online(node_t *node) {
+    return node->gmc_server.is_online && node->gmc_server.is_online;
+}
+
+int node_has_media(node_t *node) {
+    return node->streamer != NULL && node->receiver != NULL;
+}
+
 void node_register(node_t *node) {
     if( !node_is_online(node) ) {
         SHOW_LOG(5, fprintf(stdout, "Registration is failed: Node is not online\n"));
@@ -25,67 +124,6 @@ void node_register(node_t *node) {
     //Send MG_REQ
     PERROR_IF_TRUE(gm_client_send(&node->gm_client, &req) < 0, "ERROR:: registered failed - ");
 }
-/*
-void on_request_adv_server(adv_server_t *adv_server, adv_request_t *request) {
-    //TODO
-    SHOW_LOG(4, fprintf(stdout,"Received: ID = %s\nSDP addr %s:%d\n", request->adv_info.info_id, request->adv_info.sdp_mip, request->adv_info.sdp_port));
-}
-*/
-void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request) {
-    node_t *node = gmc_server->user_data;
-    SHOW_LOG(5, fprintf(stdout, "Receive something\n"));
-    switch(request->msg_id) {
-        case GMC_GROUP:
-            SHOW_LOG(4, fprintf(stdout, "Received request:\nAction: %d - Adv_ip: %s\n", 
-                    request->gmc_group.join, request->gmc_group.adv_ip));
-            if (request->gmc_group.join == 1) {
-                SHOW_LOG(4, fprintf(stdout, "%s join %s\n", node->id, request->gmc_group.adv_ip));
-                adv_server_join(node->adv_server, request->gmc_group.adv_ip);
-            }
-            else if (request->gmc_group.join == 0) {
-                SHOW_LOG(4, fprintf(stdout, "%s leave %s\n", node->id, request->gmc_group.adv_ip));
-                adv_server_leave(node->adv_server, request->gmc_group.adv_ip);
-            }
-            else {
-                EXIT_IF_TRUE(1, "Unknow action\n");
-            }
-            break;
-        default:
-            EXIT_IF_TRUE(1, "Unknow request\n");
-    }
-}
-
-void node_init(node_t *node,char *id, char *location, char *desc, int radio_port, char *gm_cs, char *gmc_cs, char *adv_cs) {    
-    int n;
-
-    if (radio_port < 0) {
-        ansi_copy_str(node->id, id);
-    }
-    else {
-        n = sprintf(node->id, "%s%d", id, radio_port);
-        node->id[n] = '\0';
-    }
-    ansi_copy_str(node->location, location);
-    ansi_copy_str(node->desc, desc);
-    ansi_copy_str(node->gmc_cs, gmc_cs);
-
-    node->radio_port = radio_port;
-    gm_client_open(&node->gm_client, gm_cs);
-
-    memset(&node->gmc_server, 0, sizeof(node->gmc_server));
-    //memset(&node->adv_server, 0, sizeof(node->adv_server));
-
-    node->gmc_server.on_request_f = &on_request_gmc_server;
-    node->gmc_server.user_data = node;
-    
-    gmc_server_init(&node->gmc_server, gmc_cs);
-    gmc_server_start(&node->gmc_server);
-}
-
-int node_is_online(node_t *node) {
-    return node->gmc_server.is_online && node->gmc_server.is_online;
-}
-
 void node_invite(node_t *node, char *guest) {
     gm_request_t req;
     if( node_is_online(node) ) {
@@ -105,6 +143,45 @@ void node_repulse(node_t *node, char *guest) {
         ansi_copy_str(req.gm_group.guest, guest);
         PERROR_IF_TRUE(gm_client_send(&node->gm_client, &req) < 0, "ERROR::node_repulse: ");
     }
+}
+
+void node_start_session(node_t *node) {
+    char mcast[16];
+    int port;
+    gm_request_t request;
+
+    if(!node_has_media(node)) return;
+
+    // Generate random mcast ip
+    int n = sprintf(mcast, "237.0.%d.%d", pj_rand() % 254, pj_rand() % 254);
+    mcast[n] = '\0';
+    // Generate int random port
+    port = 1000 + 2 * (pj_rand() % 300);
+   
+    // Broadcast session info
+    request.msg_id = GM_INFO;
+    ansi_copy_str(request.gm_info.gm_owner, node->id);
+    ansi_copy_str(request.gm_info.sdp_mip, mcast);
+    request.gm_info.sdp_port = port;
+    gm_client_send(&node->gm_client, &request);
+
+    // Start media stream for the session
+    streamer_stop(node->streamer);
+    streamer_config_stream(node->streamer, 0, mcast, port);
+    streamer_start(node->streamer);
+}
+
+void node_stop_session(node_t *node) {
+    gm_request_t request;
+
+    // Broadcast session info
+    request.msg_id = GM_INFO;
+    ansi_copy_str(request.gm_info.gm_owner, node->id);
+    request.gm_info.sdp_port = -1;
+    gm_client_send(&node->gm_client, &request);
+
+    // Stop media stream for the session
+    streamer_stop(node->streamer);
 }
 
 void node_pause(node_t *node) {
