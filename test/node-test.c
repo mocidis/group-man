@@ -5,9 +5,9 @@
 #include "proto-constants.h"
 
 #include "my-pjlib-utils.h"
-
-/*void on_adv_info(adv_server_t *adv_server, adv_request_t *request) {
-    SHOW_LOG(4, fprintf(stdout,"Received: ID = %s\nSDP addr %s:%d\n", request->adv_info.info_id, request->adv_info.sdp_mip, request->adv_info.sdp_port));
+/*
+void on_adv_info(adv_server_t *adv_server, adv_request_t *request) {
+    SHOW_LOG(4, fprintf(stdout,"Received: ID = %s\nSDP addr %s:%d\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port));
 }*/
 
 void on_online_report(char *id, char *desc, int port, int is_online) {
@@ -21,6 +21,17 @@ void on_rx_report(char *id, int is_rx) {
 }
 void on_sq_report(char *id, int is_sq) {
     SHOW_LOG(5, fprintf(stdout, "Q_REPT:%s(sq=%d)\n", id, is_sq));
+}
+
+static void init_adv_server(adv_server_t *adv_server, char *adv_cs, node_t *node) {
+    memset(adv_server, 0, sizeof(*adv_server));
+
+    adv_server->on_request_f = &on_adv_info;
+    adv_server->on_open_socket_f = &on_open_socket_adv_server;
+    adv_server->user_data = node;
+    
+    adv_server_init(adv_server, adv_cs);
+    adv_server_start(adv_server);
 }
 
 void *auto_register(void *node_data) {
@@ -54,6 +65,7 @@ int main(int argc, char * argv[]) {
     int adv_port = ADV_PORT;
     int gb_port = GB_PORT; 
     char *guest = argv[7];
+    adv_server_t adv_server;
     int n;
 
     pthread_t thread;
@@ -83,7 +95,9 @@ int main(int argc, char * argv[]) {
     ///// Init node
     memset(&node, 0, sizeof(node));
     //node.on_adv_info_f = &on_adv_info;
+    init_adv_server(&adv_server, adv_cs, &node);
     node_init(&node, argv[1], argv[2], argv[3], atoi(argv[4]), gm_cs, gmc_cs, adv_cs);
+    node_add_adv_server(&node, &adv_server);
 
     /////// Init media endpoints
     pj_init();

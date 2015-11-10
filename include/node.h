@@ -8,13 +8,10 @@
 #include "endpoint.h"
 
 typedef struct node_s {
-<<<<<<< HEAD
     gm_client_t gm_client;
     gmc_server_t gmc_server;
     adv_server_t *adv_server;    
     
-=======
->>>>>>> df0d5a62c8bdb037663b361692c03e0d02963e51
     char id[10];
     char gmc_cs[30];
     char location[30];
@@ -22,15 +19,11 @@ typedef struct node_s {
 
     int radio_port;
 
-    gm_client_t gm_client;
-    gmc_server_t gmc_server;
-    adv_server_t adv_server;    
-    
     endpoint_t *streamer;
     endpoint_t *receiver;
 
     // Node's events
-    void (*on_adv_info_f)(adv_server_t *adv_server, adv_request_t *request);
+    void (*on_adv_info_f)(adv_server_t *adv_server, adv_request_t *request, char *caddr_str);
 } node_t ;
 
 void node_init(node_t *node,
@@ -60,4 +53,8 @@ void node_start_session(node_t *node);
 void node_stop_session(node_t *node);
 
 void node_add_adv_server(node_t *node, adv_server_t *adv_server);
+
+// Callback function
+void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_str);
+void on_open_socket_adv_server(adv_server_t *adv_server);
 #endif

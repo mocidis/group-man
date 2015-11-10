@@ -70,12 +70,13 @@ static void gen_random_adv_cs(entry_t *entry, char *adv_cs) {
     adv_cs[n] = '\0';
 }
 
-void on_request(gm_server_t *gm_server, gm_request_t *request) {
+void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) {
 
     entry_t *temp, *temp2, *entry;
-    char adv_cs[30];
+    char adv_cs[30], gm_cs[30], port[4];
     opool_item_t * item = NULL;
     time_t timer;
+    int n;
 
     SHOW_LOG(5, fprintf(stdout, "Receive something\n"));
     switch(request->msg_id) {
@@ -90,7 +91,6 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             if( temp != NULL ) {
                 entry = temp;
                 entry->recv_time = timer;
-                SHOW_LOG(4, fprintf(stdout, "------- %p -- %p ---\n", temp, entry));
                 //entry_update(temp, entry);
             }
             else {
@@ -106,7 +106,12 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 temp->volume = request->gm_reg.volume;
 
                 memset(&temp->gmc_client, 0, sizeof(gmc_client_t));
-                gmc_client_open(&temp->gmc_client, request->gm_reg.gmc_cs);
+
+                extract_port(port, request->gm_reg.gmc_cs);
+                n = sprintf(gm_cs ,"udp:%s:%s", caddr_str, port);
+                gm_cs[n] = '\0';
+                printf("gm_cs = %s\n", gm_cs);
+                gmc_client_open(&temp->gmc_client, gm_cs);
 
                 memset(&temp->adv_client, 0, sizeof(adv_client_t));
                 gen_random_adv_cs(temp, adv_cs);
@@ -143,21 +148,6 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
                 break;
             }
 
-<<<<<<< HEAD
-            SHOW_LOG(3, fprintf(stdout, "Tell %s join/leave into ip %s || gmc_cs = %s \n", temp2->id, gmc_req.gmc_group.adv_ip, temp2->gmc_client.connect_str));
-            gmc_client_send(&temp2->gmc_client, &gmc_req);
-            break;
-        case GM_INFO:
-            SHOW_LOG(4, fprintf(stdout, "Receive request from %s ID=%d\n", request->gm_info.gm_owner, request->msg_id));
-
-            temp = find_entry_by_id(request->gm_info.gm_owner);
-            if (temp == NULL) {
-                SHOW_LOG(4, fprintf(stdout,"Error Owner ID not found for %s!\n", request->gm_group.owner));
-                break;
-            }
-            else {
-                SHOW_LOG(4, fprintf(stdout, "Onwer: %s\n", temp->id));
-=======
             SHOW_LOG(3, fprintf(stdout, "Tell %s(%s) join into ip %s\n", temp2->id, temp2->gmc_client.connect_str, gmc_req.gmc_group.adv_ip));
             gmc_client_send(&temp2->gmc_client, &gmc_req);
             break;
@@ -171,7 +161,6 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             }
             else {
                 SHOW_LOG(3, fprintf(stdout, "Onwer: %s\n", temp->id));
->>>>>>> df0d5a62c8bdb037663b361692c03e0d02963e51
             }
 
             adv_request_t req;
@@ -180,11 +169,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request) {
             ansi_copy_str(req.adv_info.sdp_mip, request->gm_info.sdp_mip);
             req.adv_info.sdp_port = request->gm_info.sdp_port;
        
-<<<<<<< HEAD
-            SHOW_LOG(3, fprintf(stdout, "Send ADV info from %s to mutilcast addr: %s\n", temp->id, temp->adv_client.connect_str));     
-=======
             SHOW_LOG(3, fprintf(stdout, "Send ADV_INFO to %s\n", temp->adv_client.connect_str));     
->>>>>>> df0d5a62c8bdb037663b361692c03e0d02963e51
             adv_client_send(&temp->adv_client, &req);
             break;
         default:

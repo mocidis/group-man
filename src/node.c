@@ -5,7 +5,7 @@
 
 #include "node.h"
 
-void on_adv_info(adv_server_t *adv_server, adv_request_t *request) {
+void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_str) {
     node_t *node = adv_server->user_data;
     SHOW_LOG(3, fprintf(stdout, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port));
     if(!node_has_media(node)) {
@@ -28,7 +28,7 @@ void on_open_socket_adv_server(adv_server_t *adv_server) {
     ANSI_CHECK(__FILE__, pj_thread_register("adv_server", s_desc, &s_thread));
 }
 
-void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request) {
+void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, char *caddr_str) {
     node_t *node = gmc_server->user_data;
     SHOW_LOG(5, fprintf(stdout, "Receive something\n"));
     switch(request->msg_id) {
@@ -73,20 +73,10 @@ void node_init(node_t *node,char *id, char *location, char *desc, int radio_port
     gm_client_open(&node->gm_client, gm_cs);
 
     memset(&node->gmc_server, 0, sizeof(node->gmc_server));
-    //memset(&node->adv_server, 0, sizeof(node->adv_server));
 
     node->gmc_server.on_request_f = &on_request_gmc_server;
     node->gmc_server.user_data = node;
-<<<<<<< HEAD
-    
-=======
    
-    //node->adv_server.on_request_f = node->on_adv_info_f;
-    node->adv_server.on_request_f = on_adv_info; // !!! Callback on session info received
-    node->adv_server.on_open_socket_f = on_open_socket_adv_server;
-    node->adv_server.user_data = node;
-
->>>>>>> df0d5a62c8bdb037663b361692c03e0d02963e51
     gmc_server_init(&node->gmc_server, gmc_cs);
     gmc_server_start(&node->gmc_server);
 }
