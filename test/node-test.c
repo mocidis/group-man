@@ -178,6 +178,9 @@ int main(int argc, char * argv[]) {
             case 't':
                 node_start_session(&node);
                 break;
+            case 'y':
+                node_stop_session(&node);
+                break;
             case 'd':
                 node_pause(&node);
                 break;

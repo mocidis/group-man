@@ -14,7 +14,7 @@ void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_s
     }
     if( request->adv_info.sdp_port > 0 ) {
         receiver_stop(node->receiver);
-        receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port);
+        receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, 0);
         receiver_start(node->receiver);
     }
     else {
@@ -177,11 +177,13 @@ void node_stop_session(node_t *node) {
 void node_pause(node_t *node) {
     node->gmc_server.is_online = 0;
     node->adv_server->is_online = 0;
+    node_stop_session(node);
 }
 
 void node_resume(node_t *node) {
     node->gmc_server.is_online = 1;
     node->adv_server->is_online = 1;
+    node_start_session(node);
 }
 
 void node_add_adv_server(node_t *node, adv_server_t *adv_server) {
