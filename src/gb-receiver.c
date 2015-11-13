@@ -5,7 +5,7 @@
 static void on_request(gb_server_t *gb_server, gb_request_t *req) {
     //TODO
     gb_receiver_t *gr;
-    SHOW_LOG(5, fprintf(stdout, "gb_receiver: Received something\n"));
+    SHOW_LOG(5, "gb_receiver: Received something\n");
 
     gr = gb_server->user_data;
 

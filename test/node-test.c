@@ -7,20 +7,20 @@
 #include "my-pjlib-utils.h"
 /*
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request) {
-    SHOW_LOG(4, fprintf(stdout,"Received: ID = %s\nSDP addr %s:%d\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port));
+    SHOW_LOG(4, "Received: ID = %s\nSDP addr %s:%d\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port);
 }*/
 
 void on_online_report(char *id, char *desc, int port, int is_online) {
-    SHOW_LOG(5, fprintf(stdout, "O_REPT:%s(online=%d - port=%d)\n", id, is_online, port));
+    SHOW_LOG(5, "O_REPT:%s(online=%d - port=%d)\n", id, is_online, port);
 }
 void on_tx_report(char *id, int is_tx) {
-    SHOW_LOG(5, fprintf(stdout, "T_REPT:%s(tx=%d)\n", id, is_tx));
+    SHOW_LOG(5, "T_REPT:%s(tx=%d)\n", id, is_tx);
 }
 void on_rx_report(char *id, int is_rx) {
-    SHOW_LOG(5, fprintf(stdout, "R_REPT:%s(rx=%d)\n", id, is_rx));
+    SHOW_LOG(5, "R_REPT:%s(rx=%d)\n", id, is_rx);
 }
 void on_sq_report(char *id, int is_sq) {
-    SHOW_LOG(5, fprintf(stdout, "Q_REPT:%s(sq=%d)\n", id, is_sq));
+    SHOW_LOG(5, "Q_REPT:%s(sq=%d)\n", id, is_sq);
 }
 
 static void init_adv_server(adv_server_t *adv_server, char *adv_cs, node_t *node) {
@@ -90,7 +90,7 @@ int main(int argc, char * argv[]) {
     streamer_spec = argv[8];
     receiver_spec = argv[9];
 
-    SHOW_LOG(5, fprintf(stdout, "%s - %s - %s - %s - %s - %s - %s - %s - %s - %s\n",argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], adv_cs, gb_cs, streamer_spec, receiver_spec));
+    SHOW_LOG(5, "%s - %s - %s - %s - %s - %s - %s - %s - %s - %s\n",argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], adv_cs, gb_cs, streamer_spec, receiver_spec);
 
     ///// Init node
     memset(&node, 0, sizeof(node));
@@ -118,11 +118,11 @@ int main(int argc, char * argv[]) {
     int devidx = atoi(second);
     printf("second=%s devidx=%d\n", second, devidx);
     if( strcmp(first, "file") == 0 ) {
-        SHOW_LOG(3, fprintf(stdout, "source: fileeeeeeeee\n"));
+        SHOW_LOG(3, "source: fileeeeeeeee\n");
         streamer_config_file_source(&streamer, second);
     }
     else if( strcmp(first, "dev") == 0 ) {
-        SHOW_LOG(3, fprintf(stdout, "source: deveeeeeeeee\n"));
+        SHOW_LOG(3, "source: deveeeeeeeee\n");
         streamer_config_dev_source(&streamer, atoi(second));
     }
     else {
@@ -134,11 +134,11 @@ int main(int argc, char * argv[]) {
     *second = '\0';
     second++;
     if( strcmp(first, "file") == 0 ) {
-        SHOW_LOG(3, fprintf(stdout, "sink: fileeeeeeeee\n"));
+        SHOW_LOG(3, "sink: fileeeeeeeee\n");
         receiver_config_file_sink(&receiver, second);
     }
     else if( strcmp(first, "dev") == 0 ) {
-        SHOW_LOG(3, fprintf(stdout, "sink: deveeeeeeeee\n"));
+        SHOW_LOG(3, "sink: deveeeeeeeee\n");
         receiver_config_dev_sink(&receiver, atoi(second));
     }
     else {
@@ -163,7 +163,7 @@ int main(int argc, char * argv[]) {
     ////// Main loop
     while (1) {
         if (fgets(option, sizeof(option), stdin) == NULL ) {
-            SHOW_LOG(5, fprintf(stdout,"NULL cmd"));
+            SHOW_LOG(5, "NULL cmd");
         }
         switch(option[0]) {
             case 'j':
@@ -191,7 +191,7 @@ int main(int argc, char * argv[]) {
                 gb_server_leave(&gr.gb_server, GB_MIP);
                 break;
             default:
-                SHOW_LOG(5,fprintf(stdout,"Unknow command\n"));
+                SHOW_LOG(5, "Unknow command\n");
                 break;
         }
     }

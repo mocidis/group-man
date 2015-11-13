@@ -7,9 +7,9 @@
 
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_str) {
     node_t *node = adv_server->user_data;
-    SHOW_LOG(3, fprintf(stdout, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port));
+    SHOW_LOG(3, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port);
     if(!node_has_media(node)) {
-        SHOW_LOG(1, fprintf(stdout, "Node does not have media endpoints configured\n"));
+        SHOW_LOG(1, "Node does not have media endpoints configured\n");
         return;
     }
     if( request->adv_info.sdp_port > 0 ) {
@@ -30,17 +30,17 @@ void on_open_socket_adv_server(adv_server_t *adv_server) {
 
 void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, char *caddr_str) {
     node_t *node = gmc_server->user_data;
-    SHOW_LOG(5, fprintf(stdout, "Receive something\n"));
+    SHOW_LOG(5, "Receive something\n");
     switch(request->msg_id) {
         case GMC_GROUP:
-            SHOW_LOG(4, fprintf(stdout, "Received request:\nAction: %d - Adv_ip: %s\n", 
-                    request->gmc_group.join, request->gmc_group.adv_ip));
+            SHOW_LOG(4, "Received request:\nAction: %d - Adv_ip: %s\n", 
+                    request->gmc_group.join, request->gmc_group.adv_ip);
             if (request->gmc_group.join == 1) {
-                SHOW_LOG(4, fprintf(stdout, "%s join %s\n", node->id, request->gmc_group.adv_ip));
+                SHOW_LOG(4, "%s join %s\n", node->id, request->gmc_group.adv_ip);
                 adv_server_join(node->adv_server, request->gmc_group.adv_ip);
             }
             else if (request->gmc_group.join == 0) {
-                SHOW_LOG(4, fprintf(stdout, "%s leave %s\n", node->id, request->gmc_group.adv_ip));
+                SHOW_LOG(4, "%s leave %s\n", node->id, request->gmc_group.adv_ip);
                 adv_server_leave(node->adv_server, request->gmc_group.adv_ip);
             }
             else {
@@ -96,7 +96,7 @@ int node_has_media(node_t *node) {
 
 void node_register(node_t *node) {
     if( !node_is_online(node) ) {
-        SHOW_LOG(5, fprintf(stdout, "Registration is failed: Node is not online\n"));
+        SHOW_LOG(5, "Registration is failed: Node is not online\n");
         return;
     }
     gm_request_t req;
