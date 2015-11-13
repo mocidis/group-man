@@ -2,7 +2,7 @@
 #include "proto-constants.h"
 #include "gb-receiver.h"
 
-static void on_request(gb_server_t *gb_server, gb_request_t *req) {
+static void on_request(gb_server_t *gb_server, gb_request_t *req, char *caddr_str) {
     //TODO
     gb_receiver_t *gr;
     SHOW_LOG(5, "gb_receiver: Received something\n");

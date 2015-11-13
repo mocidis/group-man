@@ -59,12 +59,6 @@ static entry_t *find_entry_by_id(char *id) {
     return to_return;
 }
 
-static void entry_update(entry_t *temp, entry_t *entry) {
-    //entry_t *temp;
-    SHOW_LOG(3, "Node %s is updated\n", entry->id);
-    DL_REPLACE_ELEM(coordinator.registered_nodes, temp, entry);
-}
-
 static void gen_random_adv_cs(entry_t *entry, char *adv_cs) {
     int n = sprintf(adv_cs, "udp:239.0.0.%d:%d", coordinator.adv_mip_cnt++, ADV_PORT);
     adv_cs[n] = '\0';
