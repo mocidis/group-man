@@ -114,7 +114,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
                 temp->recv_time = timer;
 
                 DL_APPEND(coordinator.registered_nodes, temp);
-                SHOW_LOG(3, "Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str);
+                SHOW_LOG(3, "GM_REG: Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str);
             }
 
             break;
@@ -136,17 +136,21 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
             extract_ip(temp->adv_client.connect_str, gmc_req.gmc_group.adv_ip);
 
             //find guest's entry
-            temp2 = find_entry_by_id(request->gm_group.guest);
-            if (temp2 == NULL) {
-                SHOW_LOG(2,"Error ID not found!\n");
-                break;
+            DL_FOREACH(coordinator.registered_nodes, temp2) {
+                if (strstr(temp2->id, request->gm_group.guest)) {
+                    SHOW_LOG(3, "Tell %s(%s) join into ip %s\n", temp2->id, temp2->gmc_client.connect_str, gmc_req.gmc_group.adv_ip);
+                    gmc_client_send(&temp2->gmc_client, &gmc_req);
+                }
+                /*
+                if (temp2 == NULL) {
+                    SHOW_LOG(2,"Error ID not found!\n");
+                    break;
+                }
+                */
             }
-
-            SHOW_LOG(3, "Tell %s(%s) join into ip %s\n", temp2->id, temp2->gmc_client.connect_str, gmc_req.gmc_group.adv_ip);
-            gmc_client_send(&temp2->gmc_client, &gmc_req);
             break;
         case GM_INFO:
-            SHOW_LOG(3, "Receive GM_INFO from %s\n", request->gm_info.gm_owner);
+            SHOW_LOG(3, "Receive GM_INFO from %s: sdp_mip: %s sdp_port: %d\n", request->gm_info.gm_owner, request->gm_info.sdp_mip, request->gm_info.sdp_port);
 
             temp = find_entry_by_id(request->gm_info.gm_owner);
             if (temp == NULL) {

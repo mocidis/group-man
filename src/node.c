@@ -146,7 +146,7 @@ void node_start_session(node_t *node) {
     int n = sprintf(mcast, "237.0.%d.%d", pj_rand() % 254, pj_rand() % 254);
     mcast[n] = '\0';
     // Generate int random port
-    port = 1000 + 2 * (pj_rand() % 300);
+    port = 1000 + 2 * (pj_rand() % 300 + 12);
    
     // Broadcast session info
     request.msg_id = GM_INFO;
