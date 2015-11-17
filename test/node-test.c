@@ -78,6 +78,10 @@ int main(int argc, char * argv[]) {
     
     if (argc < 10) usage(argv[0]);
 
+    pj_init();
+    pj_log_set_level(3);
+    pj_srand(1234);
+
     SET_LOG_LEVEL(4);
 
     gm_cs = argv[5];
@@ -100,9 +104,6 @@ int main(int argc, char * argv[]) {
     node_add_adv_server(&node, &adv_server);
 
     /////// Init media endpoints
-    pj_init();
-    pj_log_set_level(3);
-    pj_srand(1234);
     pj_caching_pool_init(&cp, NULL, 1024);
     pool = pj_pool_create(&cp.factory, "pool1", 1024, 1024, NULL);
     pjmedia_endpt_create(&cp.factory, NULL, 1, &ep);
