@@ -94,4 +94,4 @@ $(ANSI_O_SRCS:.c=.o): %.o: $(ANSI_O_DIR)/src/%.c
 	gcc -c -o $@ $^ $(CFLAGS)
 
 clean: 
-	rm -fr *.o gen/ gen-gm gen-gmc gen-adv gen-gb $(NTEST) $(COORDINATOR)
+	rm -fr *.o gen/ gen-gm gen-gmc gen-adv gen-gb $(NTEST) $(COORD)
