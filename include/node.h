@@ -18,6 +18,8 @@ typedef struct node_s {
     char desc[50];
 
     int radio_port;
+    unsigned streamer_dev_idx;
+    unsigned receiver_dev_idx;
 
     endpoint_t *streamer;
     endpoint_t *receiver;
