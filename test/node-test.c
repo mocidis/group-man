@@ -23,22 +23,22 @@ void on_sq_report(char *id, int is_sq) {
     SHOW_LOG(5, "Q_REPT:%s(sq=%d)\n", id, is_sq);
 }
 
-static void init_adv_server(adv_server_t *adv_server, char *adv_cs, node_t *node) {
+static void init_adv_server(adv_server_t *adv_server, char *adv_cs, node_t *node, pj_pool_t *pool) {
     memset(adv_server, 0, sizeof(*adv_server));
 
     adv_server->on_request_f = &on_adv_info;
     adv_server->on_open_socket_f = &on_open_socket_adv_server;
     adv_server->user_data = node;
     
-    adv_server_init(adv_server, adv_cs);
+    adv_server_init(adv_server, adv_cs, pool);
     adv_server_start(adv_server);
 }
 
-void *auto_register(void *node_data) {
+int auto_register(void *node_data) {
     node_t *node = (node_t *)node_data;
     while (1) {
         node_register(node);
-        usleep(5*1000*1000);
+        pj_thread_sleep(5*1000);
     }
 }
 
@@ -68,7 +68,7 @@ int main(int argc, char * argv[]) {
     adv_server_t adv_server;
     int n;
 
-    pthread_t thread;
+    pj_thread_t *thread;
     
     pj_caching_pool cp;
     pj_pool_t *pool = NULL;
@@ -81,6 +81,8 @@ int main(int argc, char * argv[]) {
     pj_init();
     pj_log_set_level(3);
     pj_srand(1234);
+    pj_caching_pool_init(&cp, NULL, 1024);
+    pool = pj_pool_create(&cp.factory, "pool1", 1024, 1024, NULL);
 
     SET_LOG_LEVEL(4);
 
@@ -99,13 +101,11 @@ int main(int argc, char * argv[]) {
     ///// Init node
     memset(&node, 0, sizeof(node));
     //node.on_adv_info_f = &on_adv_info;
-    init_adv_server(&adv_server, adv_cs, &node);
-    node_init(&node, argv[1], argv[2], argv[3], atoi(argv[4]), gm_cs, gmc_cs, adv_cs);
+    init_adv_server(&adv_server, adv_cs, &node, pool);
+    node_init(&node, argv[1], argv[2], argv[3], atoi(argv[4]), gm_cs, gmc_cs, pool);
     node_add_adv_server(&node, &adv_server);
 
     /////// Init media endpoints
-    pj_caching_pool_init(&cp, NULL, 1024);
-    pool = pj_pool_create(&cp.factory, "pool1", 1024, 1024, NULL);
     pjmedia_endpt_create(&cp.factory, NULL, 1, &ep);
     pjmedia_codec_g711_init(ep);
 
@@ -154,11 +154,11 @@ int main(int argc, char * argv[]) {
     gr.on_tx_report_f = &on_tx_report;
     gr.on_rx_report_f = &on_rx_report;
     gr.on_sq_report_f = &on_sq_report;
-    gb_receiver_init(&gr, gb_cs);
-    sleep(1);
+    gb_receiver_init(&gr, gb_cs, pool);
+    pj_thread_sleep(1);
 
     ////// periodically register
-    n = pthread_create(&thread, NULL, auto_register, &node);
+    n = pj_thread_create(pool, "", auto_register, &node, PJ_THREAD_DEFAULT_STACK_SIZE, 0, &thread);
     EXIT_IF_TRUE(n != 0, "Error create a thread\n");
 
     ////// Main loop

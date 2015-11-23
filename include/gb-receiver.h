@@ -11,7 +11,7 @@ typedef struct {
     void (* on_sq_report_f)(char *id, int is_sq);
 }gb_receiver_t;
 
-void gb_receiver_init(gb_receiver_t *gr, char *gb_cs);
+void gb_receiver_init(gb_receiver_t *gr, char *gb_cs, pj_pool_t *pool);
 void gb_receiver_pause(gb_receiver_t *gr);
 void gb_receiver_resume(gb_receiver_t *gr);
 int gb_receiver_is_online(gb_receiver_t *gr);

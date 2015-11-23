@@ -52,9 +52,10 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
     }
 }
 
-void node_init(node_t *node,char *id, char *location, char *desc, int radio_port, char *gm_cs, char *gmc_cs, char *adv_cs) {    
+void node_init(node_t *node, char *id, char *location, char *desc, int radio_port, char *gm_cs, char *gmc_cs, pj_pool_t *pool) {
     int n;
 
+    SHOW_LOG(3, "++%s++%s++%s++%d++%s++%s\n", id, location, desc, radio_port, gm_cs, gmc_cs);
     if (radio_port < 0) {
         ansi_copy_str(node->id, id);
     }
@@ -77,7 +78,7 @@ void node_init(node_t *node,char *id, char *location, char *desc, int radio_port
     node->gmc_server.on_request_f = &on_request_gmc_server;
     node->gmc_server.user_data = node;
    
-    gmc_server_init(&node->gmc_server, gmc_cs);
+    gmc_server_init(&node->gmc_server, gmc_cs, pool);
     gmc_server_start(&node->gmc_server);
 }
 
