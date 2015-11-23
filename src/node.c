@@ -8,10 +8,12 @@
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_str) {
     node_t *node = adv_server->user_data;
     SHOW_LOG(3, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port);
+
     if(!node_has_media(node)) {
         SHOW_LOG(1, "Node does not have media endpoints configured\n");
         return;
     }
+
     if( request->adv_info.sdp_port > 0 ) {
         receiver_stop(node->receiver);
         receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, 0);
