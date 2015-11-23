@@ -25,7 +25,7 @@ typedef struct node_s {
     endpoint_t *receiver;
 
     // Node's events
-    //void (*on_adv_info_f)(adv_server_t *adv_server, adv_request_t *request, char *caddr_str);
+    void (*on_adv_info_f)(adv_server_t *adv_server, adv_request_t *request, char *caddr_str);
 } node_t ;
 
 void node_init(node_t *node,

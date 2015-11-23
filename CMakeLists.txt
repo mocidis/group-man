@@ -91,9 +91,9 @@ my_target_link_pjproject(${COORD})
 target_link_libraries(${NTEST} ${JSON_C_LDFLAGS})
 target_link_libraries(${COORD} ${JSON_C_LDFLAGS})
 
-set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR})
+set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
 
-install(TARGETS ${NTEST} ${COORD} RUNTIME DESTINATION output)
+install(TARGETS ${NTEST} ${COORD} RUNTIME DESTINATION .)
 
 set(CPACK_GENERATOR "ZIP")
 
