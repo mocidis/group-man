@@ -55,22 +55,22 @@ all: gen-gm gen-gmc gen-adv gen-gb $(COORD) $(NTEST)
 
 gen-gm: $(PROTOCOL_DIR)/$(GM_P)
 	mkdir -p gen
-	awk -f $(USERVER_DIR)/gen-tools/gen.awk $< $(USERVER_DIR)
+	awk -v base_dir=$(USERVER_DIR) -f $(USERVER_DIR)/gen-tools/gen.awk $<
 	touch $@
 
 gen-gmc: $(PROTOCOL_DIR)/$(GMC_P)
 	mkdir -p gen
-	awk -f $(USERVER_DIR)/gen-tools/gen.awk $< $(USERVER_DIR)
+	awk -v base_dir=$(USERVER_DIR) -f $(USERVER_DIR)/gen-tools/gen.awk $<
 	touch $@
 
 gen-adv: $(PROTOCOL_DIR)/$(ADV_P)
 	mkdir -p gen
-	awk -f $(USERVER_DIR)/gen-tools/gen.awk $< $(USERVER_DIR)
+	awk -v base_dir=$(USERVER_DIR) -f $(USERVER_DIR)/gen-tools/gen.awk $<
 	touch $@
 
 gen-gb: $(PROTOCOL_DIR)/$(GB_P)
 	mkdir -p gen
-	awk -f $(USERVER_DIR)/gen-tools/gen.awk $< $(USERVER_DIR)
+	awk -v base_dir=$(USERVER_DIR) -f $(USERVER_DIR)/gen-tools/gen.awk $<
 	touch $@
 
 $(NTEST): $(NTEST_SRCS:.c=.o) $(NODE_SRCS:.c=.o) $(GEN_SRCS:.c=.o) $(C_SRCS:.c=.o) $(O_SRCS:.c=.o) gb-receiver.o $(EP_SRCS:.c=.o)
