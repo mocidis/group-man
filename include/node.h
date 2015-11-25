@@ -6,6 +6,9 @@
 #include "proto-constants.h"
 
 #include "endpoint.h"
+#include "hash-table.h"
+
+#include "hash-table.h"
 
 typedef struct node_s {
     gm_client_t gm_client;
@@ -23,6 +26,8 @@ typedef struct node_s {
 
     endpoint_t *streamer;
     endpoint_t *receiver;
+
+    hash_table_t *hash_table;
 
     // Node's events
     void (*on_adv_info_f)(adv_server_t *adv_server, adv_request_t *request, char *caddr_str);

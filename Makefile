@@ -33,6 +33,9 @@ GEN_SRCS:=gm-server.c gm-client.c gmc-server.c gmc-client.c adv-server.c adv-cli
 
 JSONC_DIR:=../json-c/output
 
+HT_DIR:=../hash-table
+HT_SRCS:=hash-table.c
+
 CFLAGS:=-I$(GEN_DIR) -I$(C_DIR)/include -Wall
 CFLAGS+=-I$(JSONC_DIR)/include/json-c 
 CFLAGS+=-I$(LIBUT_DIR)/include 
@@ -47,6 +50,7 @@ CFLAGS+=-Iinclude
 CFLAGS+=-I$(EP_DIR)/include
 CFLAGS+=-D__ICS_INTEL__
 CFLAGS+=$(shell pkg-config --cflags libpjproject)
+CFLAGS+=-I$(HT_DIR)/include
 
 LIBS:=$(JSONC_DIR)/lib/libjson-c.a -lpthread
 LIBS+=$(shell pkg-config --libs libpjproject)
