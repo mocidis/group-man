@@ -40,7 +40,7 @@ void node_init(node_t *node,
                int radio_port, 
                char *gm_cs, 
                char *gmc_cs, 
-               char *adv_cs);
+               pj_pool_t *pool);
 
 void node_media_config(node_t *node, endpoint_t *streamer, endpoint_t *receiver);
 

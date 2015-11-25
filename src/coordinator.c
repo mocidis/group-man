@@ -6,7 +6,10 @@
 #include "utlist.h"
 #include "object-pool.h"
 #include "gb-sender.h"
+
 #include <time.h>
+
+#include "pjlib.h"
 
 #define ADV_MIP_LAST_OCTET_BEGIN 1
 
@@ -33,12 +36,13 @@ typedef struct coordinator_s coordinator_t;
 
 struct coordinator_s{
     opool_t opool;
+    pj_pool_t *pool;
     int adv_mip_cnt;
     gm_server_t gm_server;
     gb_sender_t gb_sender;
     entry_t *registered_nodes; // List of registered nodes
 
-    pthread_t thread;   
+    pj_thread_t *thread;   
 };
 
 coordinator_t coordinator;
@@ -175,7 +179,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
     }
 }
 
-void *coordinator_proc(void *coord) {
+int coordinator_proc(void *coord) {
     coordinator_t *coordinator = (coordinator_t *)coord;
     entry_t *temp, *entry;
     int is_online = 0;
@@ -191,12 +195,13 @@ void *coordinator_proc(void *coord) {
             }
         }
         SHOW_LOG(5, "Coordinator_proc: Sending...\n");
-        usleep(5*1000*1000);
+        pj_thread_sleep(5*1000);
     }
+    return 0;
 }
 
 void coordinator_auto_send(coordinator_t *coordinator) {
-    pthread_create(&coordinator->thread, NULL, coordinator_proc, coordinator);
+    pj_thread_create(coordinator->pool, "", coordinator_proc, coordinator, PJ_THREAD_DEFAULT_STACK_SIZE, 0, &coordinator->thread);
 }
 
 void usage(char *app) {
@@ -205,17 +210,25 @@ void usage(char *app) {
 }
 
 int main(int argc, char * argv[]) {
-    if (argc < 2)
-        usage(argv[0]);
+    if (argc < 2) usage(argv[0]);
     char *gm_server_cs;
     char gb_cs[30];
     int n;
 
+    pj_caching_pool cp;
+    pj_pool_t *pool;
+
+
+    pj_init();
+    pj_caching_pool_init(&cp, 0, 4096);
+    pool = pj_pool_create(&cp.factory, "", 256, 256, NULL);
+
     SET_LOG_LEVEL(3);
+    coordinator.pool = pool;
     coordinator.adv_mip_cnt = ADV_MIP_LAST_OCTET_BEGIN;
 
     SHOW_LOG(5, "Init object pool\n");
-    opool_init(&coordinator.opool, 40, sizeof(entry_t));
+    opool_init(&coordinator.opool, 40, sizeof(entry_t), pool);
    
     // init gm_server
     gm_server_cs = argv[1];
@@ -223,7 +236,7 @@ int main(int argc, char * argv[]) {
     coordinator.gm_server.on_request_f = &on_request;
    
     SHOW_LOG(5, "Init gm server\n");
-    gm_server_init(&coordinator.gm_server, gm_server_cs);
+    gm_server_init(&coordinator.gm_server, gm_server_cs, pool);
     SHOW_LOG(5, "Start gm server\n");
     gm_server_start(&coordinator.gm_server);
 
@@ -235,7 +248,7 @@ int main(int argc, char * argv[]) {
     coordinator_auto_send(&coordinator);
    
     while (1) {
-        sleep(1);
+        pj_thread_sleep(1000);
     }
     return 0;
 }
