@@ -36,7 +36,7 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
     node_t *node = gmc_server->user_data;
     SHOW_LOG(5, "Receive something\n");
 
-    int join = 1, leave = 0;
+    static int join = 1, leave = 0;
 
     switch(request->msg_id) {
         case GMC_GROUP:
