@@ -129,6 +129,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
 
             gmc_req.msg_id = GMC_GROUP;
             gmc_req.gmc_group.join = request->gm_group.join;
+            ansi_copy_str(gmc_req.gmc_group.owner, request->gm_group.owner);
 
             //find owner's entry for adv_cs
             temp = find_entry_by_id(request->gm_group.owner);

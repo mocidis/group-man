@@ -77,7 +77,7 @@ gen-gb: $(PROTOCOL_DIR)/$(GB_P)
 	awk -v base_dir=$(USERVER_DIR) -f $(USERVER_DIR)/gen-tools/gen.awk $<
 	touch $@
 
-$(NTEST): $(NTEST_SRCS:.c=.o) $(NODE_SRCS:.c=.o) $(GEN_SRCS:.c=.o) $(C_SRCS:.c=.o) $(O_SRCS:.c=.o) gb-receiver.o $(EP_SRCS:.c=.o)
+$(NTEST): $(NTEST_SRCS:.c=.o) $(NODE_SRCS:.c=.o) $(GEN_SRCS:.c=.o) $(C_SRCS:.c=.o) $(O_SRCS:.c=.o) gb-receiver.o $(EP_SRCS:.c=.o) $(HT_SRCS:.c=.o)
 	gcc -o $@ $^ $(LIBS)
 
 $(COORD): $(COORD_SRCS:.c=.o) $(GEN_SRCS:.c=.o) $(C_SRCS:.c=.o) $(O_SRCS:.c=.o)
@@ -95,6 +95,8 @@ $(GEN_SRCS:.c=.o): %.o: $(GEN_DIR)/%.c
 $(C_SRCS:.c=.o): %.o: $(C_DIR)/src/%.c
 	gcc -c -o $@ $^ $(CFLAGS)
 $(O_SRCS:.c=.o): %.o: $(O_DIR)/src/%.c
+	gcc -c -o $@ $^ $(CFLAGS)
+$(HT_SRCS:.c=.o): %.o: $(HT_DIR)/src/%.c
 	gcc -c -o $@ $^ $(CFLAGS)
 
 clean: 

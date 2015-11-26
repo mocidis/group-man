@@ -5,6 +5,8 @@
 
 #include "node.h"
 
+#define HT_SIZE 10
+
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_str) {
     node_t *node = adv_server->user_data;
     SHOW_LOG(3, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port);
@@ -33,17 +35,22 @@ void on_open_socket_adv_server(adv_server_t *adv_server) {
 void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, char *caddr_str) {
     node_t *node = gmc_server->user_data;
     SHOW_LOG(5, "Receive something\n");
+
+    int join = 0, leave = 1;
+
     switch(request->msg_id) {
         case GMC_GROUP:
-            SHOW_LOG(4, "Received request:\nAction: %d - Adv_ip: %s\n", 
-                    request->gmc_group.join, request->gmc_group.adv_ip);
+            SHOW_LOG(4, "Received request:\nFrom: %s\nAction: %d - Adv_ip: %s\n", 
+                request->gmc_group.owner, request->gmc_group.join, request->gmc_group.adv_ip);
             if (request->gmc_group.join == 1) {
                 SHOW_LOG(4, "%s join %s\n", node->id, request->gmc_group.adv_ip);
                 adv_server_join(node->adv_server, request->gmc_group.adv_ip);
+                ht_add_item(&node->hash_table, request->gmc_group.owner, &join);
             }
             else if (request->gmc_group.join == 0) {
                 SHOW_LOG(4, "%s leave %s\n", node->id, request->gmc_group.adv_ip);
                 adv_server_leave(node->adv_server, request->gmc_group.adv_ip);
+                ht_add_item(&node->hash_table, request->gmc_group.owner, &leave);
             }
             else {
                 EXIT_IF_TRUE(1, "Unknown action\n");
@@ -58,6 +65,7 @@ void node_init(node_t *node, char *id, char *location, char *desc, int radio_por
     int n;
 
     SHOW_LOG(3, "++%s++%s++%s++%d++%s++%s\n", id, location, desc, radio_port, gm_cs, gmc_cs);
+
     if (radio_port < 0) {
         ansi_copy_str(node->id, id);
     }
@@ -65,6 +73,7 @@ void node_init(node_t *node, char *id, char *location, char *desc, int radio_por
         n = sprintf(node->id, "%s%d", id, radio_port);
         node->id[n] = '\0';
     }
+
     ansi_copy_str(node->location, location);
     ansi_copy_str(node->desc, desc);
     ansi_copy_str(node->gmc_cs, gmc_cs);
@@ -79,9 +88,12 @@ void node_init(node_t *node, char *id, char *location, char *desc, int radio_por
 
     node->gmc_server.on_request_f = &on_request_gmc_server;
     node->gmc_server.user_data = node;
-   
     gmc_server_init(&node->gmc_server, gmc_cs, pool);
     gmc_server_start(&node->gmc_server);
+
+    ht_init(&node->hash_table, pool); 
+    ht_create(&node->hash_table, HT_SIZE);
+    SHOW_LOG(3, "INIT HASH TABLE...DONE\n");
 }
 
 void node_media_config(node_t *node, endpoint_t *streamer, endpoint_t *receiver) {
