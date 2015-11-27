@@ -27,7 +27,7 @@ typedef struct node_s {
     endpoint_t *streamer;
     endpoint_t *receiver;
 
-    hash_table_t hash_table;
+    hash_table_t group_table;
 
     // Node's events
     void (*on_adv_info_f)(adv_server_t *adv_server, adv_request_t *request, char *caddr_str);
@@ -58,6 +58,8 @@ void node_invite(node_t *node, char *guest);
 void node_repulse(node_t *node, char *guest);
 void node_start_session(node_t *node);
 void node_stop_session(node_t *node);
+
+int node_in_group(node_t *node, char *owner_id);
 
 void node_add_adv_server(node_t *node, adv_server_t *adv_server);
 

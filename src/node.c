@@ -45,12 +45,12 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
             if (request->gmc_group.join == 1) {
                 SHOW_LOG(4, "%s join %s\n", node->id, request->gmc_group.adv_ip);
                 adv_server_join(node->adv_server, request->gmc_group.adv_ip);
-                ht_add_item(&node->hash_table, request->gmc_group.owner, &join);
+                ht_add_item(&node->group_table, request->gmc_group.owner, &join);
             }
             else if (request->gmc_group.join == 0) {
                 SHOW_LOG(4, "%s leave %s\n", node->id, request->gmc_group.adv_ip);
                 adv_server_leave(node->adv_server, request->gmc_group.adv_ip);
-                ht_add_item(&node->hash_table, request->gmc_group.owner, &leave);
+                ht_add_item(&node->group_table, request->gmc_group.owner, &leave);
             }
             else {
                 EXIT_IF_TRUE(1, "Unknown action\n");
@@ -91,8 +91,8 @@ void node_init(node_t *node, char *id, char *location, char *desc, int radio_por
     gmc_server_init(&node->gmc_server, gmc_cs, pool);
     gmc_server_start(&node->gmc_server);
 
-    ht_init(&node->hash_table, pool); 
-    ht_create(&node->hash_table, HT_SIZE);
+    ht_init(&node->group_table, pool); 
+    ht_create(&node->group_table, HT_SIZE);
     SHOW_LOG(3, "INIT HASH TABLE...DONE\n");
 }
 
@@ -204,3 +204,8 @@ void node_resume(node_t *node) {
 void node_add_adv_server(node_t *node, adv_server_t *adv_server) {
     node->adv_server = adv_server;
 }
+
+int node_in_group(node_t *node, char *owner_id) {
+    return ht_get_item(&node->group_table, owner_id);
+}
+
