@@ -92,8 +92,8 @@ void node_init(node_t *node, char *id, char *location, char *desc, int radio_por
     gmc_server_start(&node->gmc_server);
 
     SHOW_LOG(3, "INIT HASH TABLE...STARTED\n");
-    ht_init(&node->hash_table, pool); 
-    ht_create(&node->hash_table, HT_SIZE);
+    ht_init(&node->group_table, pool); 
+    ht_create(&node->group_table, HT_SIZE);
     SHOW_LOG(3, "INIT HASH TABLE...DONE\n");
 }
 
