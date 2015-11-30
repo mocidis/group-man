@@ -8,8 +8,6 @@
 #include "endpoint.h"
 #include "hash-table.h"
 
-#include "hash-table.h"
-
 typedef struct node_s {
     gm_client_t gm_client;
     gmc_server_t gmc_server;
@@ -31,6 +29,7 @@ typedef struct node_s {
 
     // Node's events
     void (*on_adv_info_f)(adv_server_t *adv_server, adv_request_t *request, char *caddr_str);
+    void (*on_leave_server_f)(char *owner_id, char *adv_ip);
 } node_t ;
 
 void node_init(node_t *node,
