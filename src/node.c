@@ -49,8 +49,8 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
             }
             else if (request->gmc_group.join == 0) {
                 ht_add_item(&node->group_table, request->gmc_group.owner, &leave);
-                if (node->on_leave_server_f != NULL) {
-                    node->on_leave_server_f(request->gmc_group.owner, request->gmc_group.adv_ip);
+                if (node->on_leaving_server_f != NULL) {
+                    node->on_leaving_server_f(request->gmc_group.owner, request->gmc_group.adv_ip);
                 }
             }
             else {

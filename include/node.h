@@ -29,7 +29,7 @@ typedef struct node_s {
 
     // Node's events
     void (*on_adv_info_f)(adv_server_t *adv_server, adv_request_t *request, char *caddr_str);
-    void (*on_leave_server_f)(char *owner_id, char *adv_ip);
+    void (*on_leaving_server_f)(char *owner_id, char *adv_ip);
 } node_t ;
 
 void node_init(node_t *node,
