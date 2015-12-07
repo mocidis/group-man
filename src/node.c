@@ -35,9 +35,10 @@ void on_open_socket_adv_server(adv_server_t *adv_server) {
 void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, char *caddr_str) {
     node_t *node = gmc_server->user_data;
     SHOW_LOG(5, "Receive something\n");
-
-    static int join = 1, leave = 0;
-
+    int idx;
+    
+    idx = ht_get_size(&node->group_table);
+    
     switch(request->msg_id) {
         case GMC_GROUP:
             SHOW_LOG(4, "Received request:\nFrom: %s\nAction: %d - Adv_ip: %s\n", 
@@ -45,10 +46,10 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
             if (request->gmc_group.join == 1) {
                 SHOW_LOG(4, "%s join %s\n", node->id, request->gmc_group.adv_ip);
                 adv_server_join(node->adv_server, request->gmc_group.adv_ip);
-                ht_add_item(&node->group_table, request->gmc_group.owner, &join);
+                ht_add_item(&node->group_table, request->gmc_group.owner, &idx);
             }
             else if (request->gmc_group.join == 0) {
-                ht_add_item(&node->group_table, request->gmc_group.owner, &leave);
+                ht_remove_item(&node->group_table, request->gmc_group.owner);
                 if (node->on_leaving_server_f != NULL) {
                     node->on_leaving_server_f(request->gmc_group.owner, request->gmc_group.adv_ip);
                 }
