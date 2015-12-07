@@ -1,4 +1,5 @@
 #include "ansi-utils.h"
+#include "my-pjlib-utils.h"
 #include "gm-client.h"
 #include "gmc-server.h"
 #include "adv-server.h"
@@ -10,6 +11,7 @@
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_str) {
     node_t *node = adv_server->user_data;
     SHOW_LOG(3, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port);
+    int idx; 
 
     if(!node_has_media(node)) {
         SHOW_LOG(1, "Node does not have media endpoints configured\n");
@@ -17,8 +19,11 @@ void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_s
     }
 
     if( request->adv_info.sdp_port > 0 ) {
+        //adv_server_leave(node->adv_server, request->adv_info.sdp.sdp_mip);
         receiver_stop(node->receiver);
-        receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, 0);
+        idx = ht_get_item(&node->group_table, request->adv_info.adv_owner);
+
+        receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, idx);
         receiver_start(node->receiver);
     }
     else {
@@ -44,6 +49,11 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
             SHOW_LOG(4, "Received request:\nFrom: %s\nAction: %d - Adv_ip: %s\n", 
                 request->gmc_group.owner, request->gmc_group.join, request->gmc_group.adv_ip);
             if (request->gmc_group.join == 1) {
+                SHOW_LOG(1, "idx = %d nstreams = %d\n", idx, node->receiver->nstreams);
+                if (idx == node->receiver->nstreams) {
+                    SHOW_LOG(1, "Error: idx == node->receiver->nstreams: Number streams reach maximum!\n");
+                }
+                
                 SHOW_LOG(4, "%s join %s\n", node->id, request->gmc_group.adv_ip);
                 adv_server_join(node->adv_server, request->gmc_group.adv_ip);
                 ht_add_item(&node->group_table, request->gmc_group.owner, &idx);
