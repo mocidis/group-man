@@ -19,6 +19,7 @@ void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_s
     }
 
     idx = ht_get_item(&node->group_table, request->adv_info.adv_owner);
+    SHOW_LOG(1, "=========owner = %s, idx = %d\n", request->adv_info.adv_owner, idx);
     if( request->adv_info.sdp_port > 0 ) {
         receiver_stop(node->receiver, idx);
 
