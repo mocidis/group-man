@@ -11,23 +11,25 @@
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_str) {
     node_t *node = adv_server->user_data;
     SHOW_LOG(3, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port);
-    int idx; 
+    int i, idx; 
 
     if(!node_has_media(node)) {
         SHOW_LOG(1, "Node does not have media endpoints configured\n");
         return;
     }
 
+    idx = ht_get_item(&node->group_table, request->adv_info.adv_owner);
     if( request->adv_info.sdp_port > 0 ) {
-        //adv_server_leave(node->adv_server, request->adv_info.sdp.sdp_mip);
-        receiver_stop(node->receiver);
-        idx = ht_get_item(&node->group_table, request->adv_info.adv_owner);
+        receiver_stop(node->receiver, idx);
 
-        receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, idx);
+        for (i = 0; i < node->receiver->nstreams; i++) {
+            receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, i);
+        }
+
         receiver_start(node->receiver);
     }
     else {
-        receiver_stop(node->receiver);
+        receiver_stop(node->receiver, idx);
     }
 }
 
@@ -40,7 +42,7 @@ void on_open_socket_adv_server(adv_server_t *adv_server) {
 void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, char *caddr_str) {
     node_t *node = gmc_server->user_data;
     SHOW_LOG(5, "Receive something\n");
-    int idx;
+    int check_exit = 0, idx;
     
     idx = ht_get_size(&node->group_table);
     
@@ -56,7 +58,11 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
                 
                 SHOW_LOG(4, "%s join %s\n", node->id, request->gmc_group.adv_ip);
                 adv_server_join(node->adv_server, request->gmc_group.adv_ip);
-                ht_add_item(&node->group_table, request->gmc_group.owner, &idx);
+
+                check_exit = ht_get_item(&node->group_table, request->gmc_group.owner);
+                if (check_exit < 0) {
+                    ht_add_item(&node->group_table, request->gmc_group.owner, &node->ht_idx[idx]);
+                }
             }
             else if (request->gmc_group.join == 0) {
                 ht_remove_item(&node->group_table, request->gmc_group.owner);
@@ -74,7 +80,7 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
 }
 
 void node_init(node_t *node, char *id, char *location, char *desc, int radio_port, char *gm_cs, char *gmc_cs, pj_pool_t *pool) {
-    int n;
+    int i, n;
 
     SHOW_LOG(3, "++%s++%s++%s++%d++%s++%s\n", id, location, desc, radio_port, gm_cs, gmc_cs);
 
@@ -84,6 +90,10 @@ void node_init(node_t *node, char *id, char *location, char *desc, int radio_por
     else {
         n = sprintf(node->id, "%s%d", id, radio_port);
         node->id[n] = '\0';
+    }
+
+    for (i = 0; i < MAX_STREAMS; i++) {
+        node->ht_idx[i] = i;
     }
 
     ansi_copy_str(node->location, location);
