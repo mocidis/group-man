@@ -6,8 +6,6 @@
 
 #include "node.h"
 
-#define HT_SIZE 10
-
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_str) {
     node_t *node = adv_server->user_data;
     SHOW_LOG(3, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port);
@@ -19,18 +17,24 @@ void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_s
     }
 
     idx = ht_get_item(&node->group_table, request->adv_info.adv_owner);
-    SHOW_LOG(1, "=========owner = %s, idx = %d\n", request->adv_info.adv_owner, idx);
-    if( request->adv_info.sdp_port > 0 ) {
-        receiver_stop(node->receiver, idx);
 
-        for (i = 0; i < node->receiver->nstreams; i++) {
-            receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, i);
+    if (idx >=0) {
+        SHOW_LOG(4, "=========owner = %s, idx = %d\n", request->adv_info.adv_owner, idx);
+        if( request->adv_info.sdp_port > 0 ) {
+            receiver_stop(node->receiver, idx);
+
+            //for (i = 0; i < node->receiver->nstreams; i++) {
+                receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, idx);
+            //}
+
+            receiver_start(node->receiver);
         }
-
-        receiver_start(node->receiver);
+        else {
+            receiver_stop(node->receiver, idx);
+        }
     }
     else {
-        receiver_stop(node->receiver, idx);
+        SHOW_LOG(1, "No record in group table for owner: %s (Idx = %d) ", request->adv_info.adv_owner, idx);
     }
 }
 
@@ -54,15 +58,17 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
             if (request->gmc_group.join == 1) {
                 SHOW_LOG(1, "idx = %d nstreams = %d\n", idx, node->receiver->nstreams);
                 if (idx == node->receiver->nstreams) {
-                    SHOW_LOG(1, "Error: idx == node->receiver->nstreams: Number streams reach maximum!\n");
+                    SHOW_LOG(1, "Caution: idx = nstreams: Number of streams reach maximum!\n");
+                    ht_list_item(&node->group_table);
                 }
-                
-                SHOW_LOG(4, "%s join %s\n", node->id, request->gmc_group.adv_ip);
-                adv_server_join(node->adv_server, request->gmc_group.adv_ip);
+                else {
+                    SHOW_LOG(4, "%s join %s\n", node->id, request->gmc_group.adv_ip);
+                    adv_server_join(node->adv_server, request->gmc_group.adv_ip);
 
-                check_exit = ht_get_item(&node->group_table, request->gmc_group.owner);
-                if (check_exit < 0) {
-                    ht_add_item(&node->group_table, request->gmc_group.owner, &node->ht_idx[idx]);
+                    check_exit = ht_get_item(&node->group_table, request->gmc_group.owner);
+                    if (check_exit < 0) {
+                        ht_add_item(&node->group_table, request->gmc_group.owner, &node->ht_idx[idx]);
+                    }
                 }
             }
             else if (request->gmc_group.join == 0) {
@@ -116,7 +122,7 @@ void node_init(node_t *node, char *id, char *location, char *desc, int radio_por
 
     SHOW_LOG(3, "INIT HASH TABLE...STARTED\n");
     ht_init(&node->group_table, pool); 
-    ht_create(&node->group_table, HT_SIZE);
+    ht_create(&node->group_table, MAX_STREAMS);
     SHOW_LOG(3, "INIT HASH TABLE...DONE\n");
 }
 

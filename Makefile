@@ -1,3 +1,5 @@
+include custom.mk
+
 .PHONY: all clear
 
 LIBUT_DIR:=../libut
@@ -14,9 +16,6 @@ COORD_DIR:=.
 COORD:=coordinator
 COORD_SRCS:=coordinator.c gb-sender.c gb-receiver.c
 
-NTEST:=node-test
-NTEST_SRCS:=node-test.c
-
 NODE_SRCS:=node.c
 
 C_DIR:=../common
@@ -31,29 +30,22 @@ EP_SRCS:=endpoint.c
 GEN_DIR:=gen
 GEN_SRCS:=gm-server.c gm-client.c gmc-server.c gmc-client.c adv-server.c adv-client.c gb-server.c gb-client.c
 
-JSONC_DIR:=../json-c/output
-
 HT_DIR:=../hash-table
 HT_SRCS:=hash-table.c
 
-CFLAGS:=-I$(GEN_DIR) -I$(C_DIR)/include -Wall
-CFLAGS+=-I$(JSONC_DIR)/include/json-c 
-CFLAGS+=-I$(LIBUT_DIR)/include 
-CFLAGS+=-I$(O_DIR)/include 
-CFLAGS+=-Iinclude -D__ICS_INTEL__
-CFLAGS+=-I$(O_DIR)/include 
-CFLAGS:=-g -I$(GEN_DIR) -I$(C_DIR)/include -Wall
-CFLAGS+=-I$(JSONC_DIR)/include/json-c
-CFLAGS+=-I$(LIBUT_DIR)/include
-CFLAGS+=-I$(O_DIR)/include
-CFLAGS+=-Iinclude
+CFLAGS:=-DPJ_AUTOCONF=1 -O2 -DPJ_IS_BIG_ENDIAN=0 -DPJ_IS_LITTLE_ENDIAN=1 -fms-extensions
+CFLAGS+=-I$(LIBS_DIR)/include
+CFLAGS+=-I$(LIBS_DIR)/include/json-c
+CFLAGS+=-I$(ICS_DIR)/include -I$(Q_DIR)/include -I$(O_DIR)/include
+CFLAGS+=-I$(C_DIR)/include
+CFLAGS+=-I$(PROTOCOLS_DIR)/include
+CFLAGS+=-I$(GEN_DIR)
+CFLAGS+=-I$(NODE_DIR)/include
 CFLAGS+=-I$(EP_DIR)/include
-CFLAGS+=-D__ICS_INTEL__
-CFLAGS+=$(shell pkg-config --cflags libpjproject)
 CFLAGS+=-I$(HT_DIR)/include
-
-LIBS:=$(JSONC_DIR)/lib/libjson-c.a -lpthread
-LIBS+=$(shell pkg-config --libs libpjproject)
+CFLAGS+=-D__ICS_INTEL__
+CFLAGS+=-Iinclude 
+CFLAGS+=-I$(LIBUT_DIR)/include
 
 all: gen-gm gen-gmc gen-adv gen-gb $(COORD) $(NTEST)
 

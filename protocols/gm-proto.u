@@ -30,5 +30,9 @@ REQUEST gm_info 103 {
     PARAM sdp_mip char [16]
     PARAM sdp_port int
 }
+
+REQUEST gm_check 104 {
+    PARAM check_owner char [10]
+}
 END
 

@@ -74,6 +74,10 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
     char adv_cs[30], gm_cs[30], port[4];
     opool_item_t * item = NULL;
     time_t timer;
+
+    gmc_request_t gmc_req;
+    gmc_req.msg_id = GMC_GROUP;
+
     int n;
 
     SHOW_LOG(5, "Receive something\n");
@@ -118,6 +122,20 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
                 temp->recv_time = timer;
 
                 DL_APPEND(coordinator.registered_nodes, temp);
+
+                gmc_req.gmc_group.join = 1;
+
+                if (strstr(temp->id, "FTW")) {
+                    DL_FOREACH(coordinator.registered_nodes, temp2) {
+                        if (strstr(temp2->id, "RIUC")) {
+                            ansi_copy_str(gmc_req.gmc_group.owner, temp2->id);
+                            extract_ip(temp2->adv_client.connect_str, gmc_req.gmc_group.adv_ip);
+                            SHOW_LOG(3, "Auto: Tell %s(%s) join into ip %s\n", temp->id, temp->gmc_client.connect_str, gmc_req.gmc_group.adv_ip);
+                            gmc_client_send(&temp->gmc_client, &gmc_req);
+                        }
+                    }
+                }
+
                 SHOW_LOG(3, "GM_REG: Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str);
             }
 
@@ -125,9 +143,8 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
         case GM_GROUP:
             SHOW_LOG(3, "%s %s %s\n", request->gm_group.owner,\
                                 request->gm_group.join?"invite":"repulse", request->gm_group.guest);
-            gmc_request_t gmc_req;
-
-            gmc_req.msg_id = GMC_GROUP;
+            //gmc_request_t gmc_req;
+            //gmc_req.msg_id = GMC_GROUP;
             gmc_req.gmc_group.join = request->gm_group.join;
             ansi_copy_str(gmc_req.gmc_group.owner, request->gm_group.owner);
 
@@ -175,6 +192,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
             SHOW_LOG(3, "Send ADV_INFO to %s\n", temp->adv_client.connect_str);
             adv_client_send(&temp->adv_client, &req);
             break;
+
         default:
             EXIT_IF_TRUE(1,"Unknown msg\n");
     }
