@@ -84,7 +84,7 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
     switch(request->msg_id) {
         case GM_REG:
             SHOW_LOG(5, "Receive request: From: %s Addr: %s\n", 
-                        request->gm_reg.reg_id, request->gm_reg.gmc_cs);
+                    request->gm_reg.reg_id, request->gm_reg.gmc_cs);
             // Add entry in the request to coordinator.registered_nodes
             temp = find_entry_by_id(request->gm_reg.reg_id);
 
@@ -125,24 +125,13 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
 
                 gmc_req.gmc_group.join = 1;
 
-                if (strstr(temp->id, "FTW")) {
-                    DL_FOREACH(coordinator.registered_nodes, temp2) {
-                        if (strstr(temp2->id, "RIUC")) {
-                            ansi_copy_str(gmc_req.gmc_group.owner, temp2->id);
-                            extract_ip(temp2->adv_client.connect_str, gmc_req.gmc_group.adv_ip);
-                            SHOW_LOG(3, "Auto: Tell %s(%s) join into ip %s\n", temp->id, temp->gmc_client.connect_str, gmc_req.gmc_group.adv_ip);
-                            gmc_client_send(&temp->gmc_client, &gmc_req);
-                        }
-                    }
-                }
-
                 SHOW_LOG(3, "GM_REG: Node %s - gmc_cs:%s - adv_cs:%s \n",temp->id, temp->gmc_client.connect_str, temp->adv_client.connect_str);
             }
 
             break;
         case GM_GROUP:
             SHOW_LOG(3, "%s %s %s\n", request->gm_group.owner,\
-                                request->gm_group.join?"invite":"repulse", request->gm_group.guest);
+                    request->gm_group.join?"invite":"repulse", request->gm_group.guest);
             //gmc_request_t gmc_req;
             //gmc_req.msg_id = GMC_GROUP;
             gmc_req.gmc_group.join = request->gm_group.join;
@@ -164,11 +153,11 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
                     gmc_client_send(&temp2->gmc_client, &gmc_req);
                 }
                 /*
-                if (temp2 == NULL) {
-                    SHOW_LOG(2,"Error ID not found!\n");
-                    break;
-                }
-                */
+                   if (temp2 == NULL) {
+                   SHOW_LOG(2,"Error ID not found!\n");
+                   break;
+                   }
+                 */
             }
             break;
         case GM_INFO:
@@ -188,13 +177,33 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
             ansi_copy_str(req.adv_info.adv_owner, request->gm_info.gm_owner);
             ansi_copy_str(req.adv_info.sdp_mip, request->gm_info.sdp_mip);
             req.adv_info.sdp_port = request->gm_info.sdp_port;
-       
+
             SHOW_LOG(3, "Send ADV_INFO to %s\n", temp->adv_client.connect_str);
             adv_client_send(&temp->adv_client, &req);
             break;
 
+        case GM_GET_INFO:
+            SHOW_LOG(3, "Receive request: From: %s \n", request->gm_get_info.owner_id);
+            temp = find_entry_by_id(request->gm_get_info.owner_id);
+            if (temp == NULL) {
+                SHOW_LOG(2, "Error ID not found!\n");
+                break;
+            }
+            gmc_req.gmc_group.join = 1;
+            if (strstr(temp->id, "FTW")) {
+                DL_FOREACH(coordinator.registered_nodes, temp2) {
+                    if (strstr(temp2->id, "RIUC")) {
+                        ansi_copy_str(gmc_req.gmc_group.owner, temp2->id);
+                        extract_ip(temp2->adv_client.connect_str, gmc_req.gmc_group.adv_ip);
+                        SHOW_LOG(3, "Auto: Tell %s(%s) join into ip %s\n", temp->id, temp->gmc_client.connect_str, gmc_req.gmc_group.adv_ip);
+                        gmc_client_send(&temp->gmc_client, &gmc_req);
+                    }
+                }
+            }
+            break;
+
         default:
-            EXIT_IF_TRUE(1,"Unknown msg\n");
+                EXIT_IF_TRUE(1,"Unknown msg\n");
     }
 }
 
@@ -207,7 +216,7 @@ int coordinator_proc(void *coord) {
         if (coordinator->registered_nodes != NULL) {
             DL_FOREACH_SAFE(coordinator->registered_nodes, temp, entry) {
                 time(&timer);
-                
+
                 is_online = (timer - temp->recv_time < 15)?1:0;
                 SHOW_LOG(3, "%s is %s\n", temp->id, is_online?"online":"offline");
                 gb_sender_report_online(&coordinator->gb_sender, temp->id, temp->desc, temp->radio_port, is_online);
@@ -248,12 +257,12 @@ int main(int argc, char * argv[]) {
 
     SHOW_LOG(5, "Init object pool\n");
     opool_init(&coordinator.opool, 40, sizeof(entry_t), pool);
-   
+
     // init gm_server
     gm_server_cs = argv[1];
     memset(&coordinator.gm_server, 0, sizeof(coordinator.gm_server));
     coordinator.gm_server.on_request_f = &on_request;
-   
+
     SHOW_LOG(5, "Init gm server\n");
     gm_server_init(&coordinator.gm_server, gm_server_cs, pool);
     SHOW_LOG(5, "Start gm server\n");
@@ -263,9 +272,9 @@ int main(int argc, char * argv[]) {
     n = sprintf(gb_cs, "udp:%s:%d", GB_MIP, GB_PORT);
     gb_cs[n] = '\0';
     gb_sender_create(&coordinator.gb_sender, gb_cs);
- 
+
     coordinator_auto_send(&coordinator);
-   
+
     while (1) {
         pj_thread_sleep(1000);
     }
