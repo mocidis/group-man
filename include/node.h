@@ -15,7 +15,7 @@ typedef struct node_s {
     gmc_server_t gmc_server;
     adv_server_t *adv_server;    
     
-    char id[10];
+    char id[20];
     char gmc_cs[30];
     char location[30];
     char desc[50];

@@ -66,6 +66,7 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
                     adv_server_join(node->adv_server, request->gmc_group.adv_ip);
 
                     check_exit = ht_get_item(&node->group_table, request->gmc_group.owner);
+                    SHOW_LOG(3, "check_exit = %d, owner = %s\n", check_exit, request->gmc_group.owner);
                     if (check_exit < 0) {
                         ht_add_item(&node->group_table, request->gmc_group.owner, &node->ht_idx[idx]);
                     }

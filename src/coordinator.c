@@ -16,7 +16,7 @@
 typedef struct entry_s entry_t;
 
 struct entry_s {
-    char id[10];
+    char id[20];
     char location[30];
     char desc[50];
     int radio_port;
@@ -190,16 +190,16 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
                 break;
             }
             gmc_req.gmc_group.join = 1;
-            if (strstr(temp->id, "FTW")) {
-                DL_FOREACH(coordinator.registered_nodes, temp2) {
-                    if (strstr(temp2->id, "RIUC")) {
-                        ansi_copy_str(gmc_req.gmc_group.owner, temp2->id);
-                        extract_ip(temp2->adv_client.connect_str, gmc_req.gmc_group.adv_ip);
-                        SHOW_LOG(3, "Auto: Tell %s(%s) join into ip %s\n", temp->id, temp->gmc_client.connect_str, gmc_req.gmc_group.adv_ip);
-                        gmc_client_send(&temp->gmc_client, &gmc_req);
-                    }
+            //if (strstr(temp->id, "FTW")) {
+            DL_FOREACH(coordinator.registered_nodes, temp2) {
+                if (strstr(temp2->id, "RIUC")) {
+                    ansi_copy_str(gmc_req.gmc_group.owner, temp2->id);
+                    extract_ip(temp2->adv_client.connect_str, gmc_req.gmc_group.adv_ip);
+                    SHOW_LOG(3, "Auto: Tell %s(%s) join into ip %s\n", temp->id, temp->gmc_client.connect_str, gmc_req.gmc_group.adv_ip);
+                    gmc_client_send(&temp->gmc_client, &gmc_req);
                 }
             }
+            //}
             break;
 
         default:
@@ -219,6 +219,7 @@ int coordinator_proc(void *coord) {
 
                 is_online = (timer - temp->recv_time < 15)?1:0;
                 SHOW_LOG(3, "%s is %s\n", temp->id, is_online?"online":"offline");
+                
                 gb_sender_report_online(&coordinator->gb_sender, temp->id, temp->desc, temp->radio_port, is_online);
             }
         }

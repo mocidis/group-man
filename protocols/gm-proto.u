@@ -1,6 +1,6 @@
 BEGIN gm
 REQUEST gm_reg 101 {
-    PARAM reg_id char [10]
+    PARAM reg_id char [20]
     PARAM gmc_cs char [30]
 
     PARAM location char [30]
@@ -19,7 +19,7 @@ REQUEST gm_reg 101 {
 REQUEST gm_group 102 {
     # owner = id host
     # guest = id guest will join/leave owner's multicast ip
-    PARAM owner char [10]
+    PARAM owner char [20]
     PARAM guest char [10]
     PARAM join int
 }
@@ -32,7 +32,7 @@ REQUEST gm_info 103 {
 }
 
 REQUEST gm_get_info 104 {
-    PARAM owner_id char [10]
+    PARAM owner_id char [20]
 }
 
 END
