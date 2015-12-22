@@ -25,7 +25,7 @@ REQUEST gm_group 102 {
 }
 
 REQUEST gm_info 103 {
-    PARAM gm_owner char [10]
+    PARAM gm_owner char [20]
     # TO BE FIXED !!!!!!!!
     PARAM sdp_mip char [16]
     PARAM sdp_port int

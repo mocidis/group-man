@@ -199,6 +199,7 @@ void node_start_session(node_t *node) {
     ansi_copy_str(request.gm_info.gm_owner, node->id);
     ansi_copy_str(request.gm_info.sdp_mip, mcast);
     request.gm_info.sdp_port = port;
+    SHOW_LOG(3, "gm_owner: %s, sdp_mip: %s, port: %d\n", request.gm_info.gm_owner, request.gm_info.sdp_mip, request.gm_info.sdp_port);
     gm_client_send(&node->gm_client, &request);
 
     // Start media stream for the session
