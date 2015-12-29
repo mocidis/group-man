@@ -66,7 +66,7 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
                     adv_server_join(node->adv_server, request->gmc_group.adv_ip);
 
                     check_exit = ht_get_item(&node->group_table, request->gmc_group.owner);
-                    SHOW_LOG(3, "check_exit = %d, owner = %s\n", check_exit, request->gmc_group.owner);
+                    SHOW_LOG(4, "node_id: %s check_exit = %d, owner = %s\n", node->id, check_exit, request->gmc_group.owner);
                     if (check_exit < 0) {
                         ht_add_item(&node->group_table, request->gmc_group.owner, &node->ht_idx[idx]);
                     }
@@ -74,6 +74,7 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
             }
             else if (request->gmc_group.join == 0) {
                 ht_remove_item(&node->group_table, request->gmc_group.owner);
+
                 if (node->on_leaving_server_f != NULL) {
                     node->on_leaving_server_f(request->gmc_group.owner, request->gmc_group.adv_ip);
                 }
