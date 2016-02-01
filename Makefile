@@ -19,7 +19,7 @@ COORD_SRCS:=coordinator.c gb-sender.c gb-receiver.c
 NODE_SRCS:=node.c
 
 C_DIR:=../common
-C_SRCS:=ansi-utils.c my-pjlib-utils.c
+C_SRCS:=ansi-utils.c my-pjlib-utils.c lvcode.c my-openssl.c
 
 O_DIR:=../object-pool
 O_SRCS:=object-pool.c
