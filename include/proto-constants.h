@@ -5,4 +5,5 @@
 #define GB_MIP "238.0.0.1"
 #define GB_CS "udp:238.0.0.1:5012"
 #define TIME_OUT 15
+#define COORD_PP "strong_passphrase"
 #endif
