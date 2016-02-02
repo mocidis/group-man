@@ -9,32 +9,36 @@
 void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_str) {
     node_t *node = adv_server->user_data;
     SHOW_LOG(3, "New session: %s(%s:%d)\n", request->adv_info.adv_owner, request->adv_info.sdp_mip, request->adv_info.sdp_port);
-    int i, idx; 
+    int i, idx;
+    int *pidx;
 
     if(!node_has_media(node)) {
         SHOW_LOG(1, "Node does not have media endpoints configured\n");
         return;
     }
 
-    idx = ht_get_item(&node->group_table, request->adv_info.adv_owner);
+    pidx = ht_get_item(&node->group_table, request->adv_info.adv_owner);
+    
+    if (pidx != NULL) {
+        idx = *pidx;
+        if (idx > 0) {
+            SHOW_LOG(4, "=========owner = %s, idx = %d\n", request->adv_info.adv_owner, idx);
+            if( request->adv_info.sdp_port > 0 ) {
+                receiver_stop(node->receiver, idx);
 
-    if (idx >=0) {
-        SHOW_LOG(4, "=========owner = %s, idx = %d\n", request->adv_info.adv_owner, idx);
-        if( request->adv_info.sdp_port > 0 ) {
-            receiver_stop(node->receiver, idx);
-
-            //for (i = 0; i < node->receiver->nstreams; i++) {
+                //for (i = 0; i < node->receiver->nstreams; i++) {
                 receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, idx);
-            //}
+                //}
 
-            receiver_start(node->receiver);
+                receiver_start(node->receiver);
+            }
+            else {
+                receiver_stop(node->receiver, idx);
+            }
         }
         else {
-            receiver_stop(node->receiver, idx);
+            SHOW_LOG(1, "No record in group table for owner: %s (Idx = %d) ", request->adv_info.adv_owner, idx);
         }
-    }
-    else {
-        SHOW_LOG(1, "No record in group table for owner: %s (Idx = %d) ", request->adv_info.adv_owner, idx);
     }
 }
 
@@ -47,7 +51,8 @@ void on_open_socket_adv_server(adv_server_t *adv_server) {
 void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, char *caddr_str) {
     node_t *node = gmc_server->user_data;
     SHOW_LOG(5, "Receive something\n");
-    int check_exit = 0, idx;
+    int *check_exit;
+    int idx;
     
     idx = ht_get_size(&node->group_table);
     
@@ -66,9 +71,9 @@ void on_request_gmc_server(gmc_server_t *gmc_server, gmc_request_t *request, cha
                     adv_server_join(node->adv_server, request->gmc_group.adv_ip);
 
                     check_exit = ht_get_item(&node->group_table, request->gmc_group.owner);
-                    SHOW_LOG(4, "node_id: %s check_exit = %d, owner = %s\n", node->id, check_exit, request->gmc_group.owner);
-                    if (check_exit < 0) {
-                        ht_add_item(&node->group_table, request->gmc_group.owner, &node->ht_idx[idx]);
+                    //SHOW_LOG(4, "node_id: %s check_exit = %d, owner = %s\n", node->id, check_exit, request->gmc_group.owner);
+                    if (check_exit == NULL) {
+                        ht_add_item(&node->group_table, request->gmc_group.owner, &(node->ht_idx[idx]));
                     }
                 }
             }
@@ -238,7 +243,7 @@ void node_add_adv_server(node_t *node, adv_server_t *adv_server) {
     node->adv_server = adv_server;
 }
 
-int node_in_group(node_t *node, char *owner_id) {
-    return ht_get_item(&node->group_table, owner_id);
+void *node_in_group(node_t *node, char *owner_id) {
+    return ht_get_item(&node->group_table, (void *)owner_id);
 }
 
