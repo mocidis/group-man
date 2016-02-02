@@ -1,6 +1,6 @@
 BEGIN gmc
 REQUEST gmc_group 201 {
-    PARAM owner char [10]
+    PARAM owner char [20]
     PARAM join int
     PARAM adv_ip char [16]
 }
