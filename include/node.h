@@ -61,7 +61,7 @@ void node_repulse(node_t *node, char *guest);
 void node_start_session(node_t *node);
 void node_stop_session(node_t *node);
 
-int node_in_group(node_t *node, char *owner_id);
+void *node_in_group(node_t *node, char *owner_id);
 
 void node_add_adv_server(node_t *node, adv_server_t *adv_server);
 
