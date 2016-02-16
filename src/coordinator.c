@@ -113,11 +113,11 @@ void on_request(gm_server_t *gm_server, gm_request_t *request, char *caddr_str) 
                 n = sprintf(gm_cs ,"udp:%s:%s", caddr_str, port);
                 gm_cs[n] = '\0';
                 printf("gm_cs = %s\n", gm_cs);
-                gmc_client_open(&temp->gmc_client, gm_cs);
+                gmc_client_open(&temp->gmc_client, gm_cs, NULL, NULL);
 
                 memset(&temp->adv_client, 0, sizeof(adv_client_t));
                 gen_random_adv_cs(temp, adv_cs);
-                adv_client_open(&temp->adv_client, adv_cs);
+                adv_client_open(&temp->adv_client, adv_cs, NULL, NULL);
 
                 temp->recv_time = timer;
 
@@ -265,7 +265,7 @@ int main(int argc, char * argv[]) {
     coordinator.gm_server.on_request_f = &on_request;
 
     SHOW_LOG(5, "Init gm server\n");
-    gm_server_init(&coordinator.gm_server, gm_server_cs, pool);
+    gm_server_init(&coordinator.gm_server, gm_server_cs, pool, NULL);
     SHOW_LOG(5, "Start gm server\n");
     gm_server_start(&coordinator.gm_server);
 

@@ -44,7 +44,7 @@ void gb_receiver_init(gb_receiver_t *gr, char *gb_cs, pj_pool_t *pool) {
     gr->gb_server.on_open_socket_f = &on_open_socket;
     gr->gb_server.user_data = gr;
 
-    gb_server_init(&gr->gb_server, gb_cs, pool);
+    gb_server_init(&gr->gb_server, gb_cs, pool, NULL);
     gb_server_start(&gr->gb_server);
 }
 

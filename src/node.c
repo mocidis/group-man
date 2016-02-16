@@ -125,13 +125,13 @@ void node_init(node_t *node, char *id, char *location, char *desc, int radio_por
 
 	node->streamer = node->receiver = NULL;
 
-	gm_client_open(&node->gm_client, gm_cs);
+	gm_client_open(&node->gm_client, gm_cs, NULL, NULL);
 
 	memset(&node->gmc_server, 0, sizeof(node->gmc_server));
 
 	node->gmc_server.on_request_f = &on_request_gmc_server;
 	node->gmc_server.user_data = node;
-	gmc_server_init(&node->gmc_server, gmc_cs, pool);
+	gmc_server_init(&node->gmc_server, gmc_cs, pool, NULL);
 	gmc_server_start(&node->gmc_server);
 
 	SHOW_LOG(3, "INIT HASH TABLE...STARTED\n");

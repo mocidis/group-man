@@ -14,7 +14,7 @@ void gb_sender_create(gb_sender_t *gs, char *gb_cs2) {
 #endif
 
 #if 1
-    gb_client_open(gs, gb_cs2);
+    gb_client_open(gs, gb_cs2, NULL, NULL);
 #endif
 }
 void gb_sender_report_online(gb_sender_t *gs, char *id, char *desc, int radio_port, int is_online) {
