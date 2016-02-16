@@ -26,11 +26,18 @@ void on_adv_info(adv_server_t *adv_server, adv_request_t *request, char *caddr_s
             //for (i = 0; i < node->receiver->nstreams; i++) {
                 receiver_config_stream(node->receiver, request->adv_info.sdp_mip, request->adv_info.sdp_port, idx);
             //}
-
+#ifdef __ICS_OIUC__
+            receiver_splitter_start(node->receiver);
+#else
             receiver_start(node->receiver);
+#endif
         }
         else {
+#ifdef __ICS_OIUC__
+            receiver_splitter_stop(node->receiver);
+#else
             receiver_stop(node->receiver, idx);
+#endif
         }
     }
     else {
